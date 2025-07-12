@@ -426,7 +426,7 @@ const MainApp: React.FC = () => {
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   onClick={() => setShowPricing(true)}
-                  className="w-full btn-primary"
+                  className="w-full btn-primary text-sm"
                 >
                   <div className="flex items-center justify-center space-x-2">
                     <Crown className="w-4 h-4" />
@@ -591,7 +591,7 @@ const MainApp: React.FC = () => {
         className="glass-panel border-t border-white/[0.08] mt-20"
       >
         <div className="container-modern py-8">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div className="space-y-4">
               <div className="flex items-center space-x-3">
                 <div className="w-8 h-8 gradient-bg-primary rounded-xl flex items-center justify-center">
@@ -600,7 +600,7 @@ const MainApp: React.FC = () => {
                 <span className="text-lg font-bold text-white">ImageCompress</span>
               </div>
               <p className="text-sm text-neutral-400">
-                Advanced image compression powered by cutting-edge technology. Optimize your images with elegance and precision.
+                Professional image compression powered by advanced algorithms. Optimize your photos with precision while maintaining quality.
               </p>
               <div className="flex items-center space-x-4 text-xs text-neutral-500">
                 <span>Client-side processing</span>
@@ -612,22 +612,13 @@ const MainApp: React.FC = () => {
             </div>
             
             <div>
-              <h4 className="text-white font-semibold mb-4">Features</h4>
+              <h4 className="text-white font-semibold mb-4">Key Features</h4>
               <div className="space-y-2 text-sm text-neutral-400">
-                <div>Smart compression</div>
-                <div>Multiple formats</div>
+                <div>AI-powered compression</div>
+                <div>Multiple format support</div>
                 <div>Batch processing</div>
-                <div>Quality control</div>
-              </div>
-            </div>
-            
-            <div>
-              <h4 className="text-white font-semibold mb-4">Legal</h4>
-              <div className="space-y-2 text-sm text-neutral-400">
-                <div>Privacy Policy</div>
-                <div>Terms of Service</div>
-                <div>Cookie Policy</div>
-                <div>Data Protection</div>
+                <div>Real-time preview</div>
+                <div>Quality preservation</div>
               </div>
             </div>
           </div>

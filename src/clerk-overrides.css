@@ -1,5 +1,154 @@
-/* Aggressive Clerk UserButton Popover Overrides */
+/* Comprehensive Clerk Component Overrides */
 /* This file contains styles specifically designed to override Clerk's Shadow DOM styling */
+
+/* Global Clerk CSS Variables */
+:root {
+  --clerk-color-text: #f4f4f5 !important;
+  --clerk-color-text-secondary: #a1a1aa !important;
+  --clerk-color-background: #18181b !important;
+  --clerk-color-primary: #38bdf8 !important;
+  --clerk-color-danger: #f87171 !important;
+  --clerk-color-success: #22c55e !important;
+  --clerk-color-warning: #f59e0b !important;
+  --clerk-color-border: #27272a !important;
+  --clerk-color-input-background: #27272a !important;
+  --clerk-color-card-background: #18181b !important;
+  color-scheme: dark !important;
+}
+
+/* ===== SIGN-IN & SIGN-UP MODALS ===== */
+
+/* Target all Clerk modal components */
+.cl-modal,
+.cl-modalBackdrop,
+.cl-modalContent,
+.cl-card,
+.cl-cardRoot,
+.cl-form,
+.cl-formButtonPrimary,
+.cl-formButtonSecondary,
+.cl-formField,
+.cl-formFieldInput,
+.cl-formFieldLabel,
+.cl-formFieldRow,
+.cl-formFieldAction,
+.cl-formFieldInputShowPasswordButton,
+.cl-formFieldInputWrapper,
+.cl-formFieldInputWrapperInner,
+.cl-formFieldInputWrapperInner input,
+.cl-formFieldInputWrapperInner select,
+.cl-formFieldInputWrapperInner textarea,
+.cl-formFieldInputWrapperInner button,
+.cl-formFieldInputWrapperInner a,
+.cl-formFieldInputWrapperInner span,
+.cl-formFieldInputWrapperInner div,
+.cl-formFieldInputWrapperInner p,
+.cl-formFieldInputWrapperInner label,
+.cl-formFieldInputWrapperInner strong,
+.cl-formFieldInputWrapperInner em,
+.cl-formFieldInputWrapperInner small,
+.cl-formFieldInputWrapperInner code,
+.cl-formFieldInputWrapperInner pre,
+.cl-formFieldInputWrapperInner blockquote,
+.cl-formFieldInputWrapperInner ul,
+.cl-formFieldInputWrapperInner ol,
+.cl-formFieldInputWrapperInner li,
+.cl-formFieldInputWrapperInner table,
+.cl-formFieldInputWrapperInner tr,
+.cl-formFieldInputWrapperInner td,
+.cl-formFieldInputWrapperInner th,
+.cl-formFieldInputWrapperInner thead,
+.cl-formFieldInputWrapperInner tbody,
+.cl-formFieldInputWrapperInner tfoot,
+.cl-formFieldInputWrapperInner caption,
+.cl-formFieldInputWrapperInner colgroup,
+.cl-formFieldInputWrapperInner col,
+.cl-formFieldInputWrapperInner fieldset,
+.cl-formFieldInputWrapperInner legend,
+.cl-formFieldInputWrapperInner figure,
+.cl-formFieldInputWrapperInner figcaption,
+.cl-formFieldInputWrapperInner h1,
+.cl-formFieldInputWrapperInner h2,
+.cl-formFieldInputWrapperInner h3,
+.cl-formFieldInputWrapperInner h4,
+.cl-formFieldInputWrapperInner h5,
+.cl-formFieldInputWrapperInner h6 {
+  color: #f4f4f5 !important;
+  background-color: #18181b !important;
+  border-color: #27272a !important;
+}
+
+/* Specific modal styling */
+.cl-modal {
+  background-color: rgba(0, 0, 0, 0.8) !important;
+}
+
+.cl-modalContent {
+  background-color: #18181b !important;
+  border: 1px solid #27272a !important;
+  border-radius: 12px !important;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8) !important;
+}
+
+.cl-card {
+  background-color: #18181b !important;
+  border: 1px solid #27272a !important;
+  border-radius: 12px !important;
+}
+
+/* Form inputs */
+.cl-formFieldInput {
+  background-color: #27272a !important;
+  border: 1px solid #3f3f46 !important;
+  color: #f4f4f5 !important;
+  border-radius: 8px !important;
+}
+
+.cl-formFieldInput:focus {
+  border-color: #38bdf8 !important;
+  box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2) !important;
+}
+
+.cl-formFieldInput::placeholder {
+  color: #71717a !important;
+}
+
+/* Buttons */
+.cl-formButtonPrimary {
+  background-color: #38bdf8 !important;
+  color: #000000 !important;
+  border: none !important;
+  border-radius: 8px !important;
+  font-weight: 600 !important;
+}
+
+.cl-formButtonPrimary:hover {
+  background-color: #0ea5e9 !important;
+}
+
+.cl-formButtonSecondary {
+  background-color: #27272a !important;
+  color: #f4f4f5 !important;
+  border: 1px solid #3f3f46 !important;
+  border-radius: 8px !important;
+}
+
+.cl-formButtonSecondary:hover {
+  background-color: #3f3f46 !important;
+}
+
+/* Links */
+.cl-formFieldAction a {
+  color: #38bdf8 !important;
+  text-decoration: none !important;
+}
+
+.cl-formFieldAction a:hover {
+  color: #0ea5e9 !important;
+  text-decoration: underline !important;
+}
+
+/* ===== USER BUTTON POPOVER ===== */
 
 /* Target the root of the UserButton popover */
 .cl-userButtonPopover {
@@ -89,14 +238,7 @@
   color: #f4f4f5 !important;
 }
 
-/* Use CSS custom properties as fallback */
-:root {
-  --clerk-color-text: #f4f4f5 !important;
-  --clerk-color-text-secondary: #a1a1aa !important;
-  --clerk-color-background: #18181b !important;
-  --clerk-color-primary: #38bdf8 !important;
-  --clerk-color-danger: #f87171 !important;
-}
+/* ===== UNIVERSAL CLERK OVERRIDES ===== */
 
 /* More targeted approach - only affect Clerk elements */
 [class*="cl-"] {
@@ -105,4 +247,63 @@
 
 [class*="cl-"] * {
   color: #f4f4f5 !important;
+}
+
+/* Ensure all Clerk text is visible */
+[class*="cl-"] span,
+[class*="cl-"] div,
+[class*="cl-"] p,
+[class*="cl-"] label,
+[class*="cl-"] h1,
+[class*="cl-"] h2,
+[class*="cl-"] h3,
+[class*="cl-"] h4,
+[class*="cl-"] h5,
+[class*="cl-"] h6 {
+  color: #f4f4f5 !important;
+}
+
+/* Ensure all Clerk backgrounds are dark */
+[class*="cl-"] {
+  background-color: #18181b !important;
+}
+
+/* Ensure all Clerk borders are visible */
+[class*="cl-"] {
+  border-color: #27272a !important;
+}
+
+/* ===== RESPONSIVE DESIGN ===== */
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+  .cl-modalContent {
+    margin: 16px !important;
+    max-width: calc(100vw - 32px) !important;
+  }
+  
+  .cl-card {
+    padding: 16px !important;
+  }
+}
+
+/* ===== ACCESSIBILITY ===== */
+
+/* Ensure proper contrast ratios */
+.cl-formFieldInput {
+  color: #f4f4f5 !important;
+  background-color: #27272a !important;
+}
+
+.cl-formFieldLabel {
+  color: #f4f4f5 !important;
+  font-weight: 500 !important;
+}
+
+/* Focus indicators */
+.cl-formFieldInput:focus,
+.cl-formButtonPrimary:focus,
+.cl-formButtonSecondary:focus {
+  outline: 2px solid #38bdf8 !important;
+  outline-offset: 2px !important;
 } 
