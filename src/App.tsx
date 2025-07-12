@@ -227,18 +227,18 @@ const MainApp: React.FC = () => {
               </SignedOut>
               <SignedIn>
                 <div className="flex items-center space-x-3">
-              {!isPremium && (
+                  {!isPremium && (
                     <motion.button
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
-                  onClick={() => setShowPricing(true)}
+                      onClick={() => setShowPricing(true)}
                       className="btn-primary text-sm flex items-center space-x-2"
-                >
+                    >
                       <Crown className="w-4 h-4" />
                       <span>Upgrade to Pro</span>
                       <Star className="w-3 h-3" />
                     </motion.button>
-              )}
+                  )}
                   <CustomUserButton />
                 </div>
               </SignedIn>
