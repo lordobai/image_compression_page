@@ -8,8 +8,6 @@ import {
   Camera,
   Check,
   Download,
-  Upload,
-  FileImage,
   BarChart3
 } from 'lucide-react';
 
