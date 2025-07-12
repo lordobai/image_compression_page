@@ -86,13 +86,6 @@ const App: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-950 relative overflow-hidden">
-      {/* Animated background elements */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-gradient-radial animate-float opacity-20"></div>
-        <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-gradient-mesh animate-float opacity-15" style={{ animationDelay: '2s' }}></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-gradient-radial animate-pulse-slow opacity-10"></div>
-      </div>
-
       <Toaster 
         position="top-right" 
         toastOptions={{
@@ -106,122 +99,80 @@ const App: React.FC = () => {
       />
       
       {/* Header */}
-      <motion.header 
-        initial={{ y: -100, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        className="glass-panel sticky top-0 z-50 border-b border-white/[0.08]"
-      >
-        <div className="container-modern">
+      <header className="bg-neutral-900/50 backdrop-blur-xl border-b border-white/[0.08] sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-20">
-            <motion.div 
-              className="flex items-center space-x-4"
-              whileHover={{ scale: 1.05 }}
-            >
-              <div className="relative">
-                <div className="w-12 h-12 gradient-bg-primary rounded-2xl flex items-center justify-center shadow-2xl">
-                  <Camera className="w-6 h-6 text-white" />
-                </div>
-                <div className="absolute -top-1 -right-1 w-4 h-4 bg-gradient-bg-accent rounded-full animate-pulse"></div>
+            <div className="flex items-center space-x-4">
+              <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center">
+                <Camera className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold gradient-text-primary">ImageCompress</h1>
-                <p className="text-xs text-neutral-400 font-mono">Pro Edition</p>
+                <h1 className="text-2xl font-bold text-white">ImageCompress</h1>
+                <p className="text-xs text-neutral-400">Pro Edition</p>
               </div>
-            </motion.div>
-            
-            <div className="flex items-center space-x-4">
-              <motion.button 
-                whileHover={{ scale: 1.1, rotate: 90 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => setShowSettings(true)}
-                className="glass-button p-3 rounded-xl"
-              >
-                <Settings className="w-5 h-5 text-neutral-300" />
-              </motion.button>
             </div>
+            
+            <button 
+              onClick={() => setShowSettings(true)}
+              className="p-3 rounded-xl bg-white/[0.05] hover:bg-white/[0.1] transition-colors"
+            >
+              <Settings className="w-5 h-5 text-neutral-300" />
+            </button>
           </div>
         </div>
-      </motion.header>
+      </header>
 
       {/* Main Content */}
-      <main className="container-modern py-12 px-4 sm:px-6 lg:px-8 relative z-10">
+      <main className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 lg:gap-12">
-          {/* Main Content - Upload & Settings */}
+          {/* Main Content */}
           <div className="lg:col-span-3 space-y-8">
             {/* Hero Section */}
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, ease: "easeOut" }}
-              className="text-center space-y-6"
-            >
+            <div className="text-center space-y-6">
               <div className="space-y-4">
-                <motion.h2 
-                  className="text-6xl font-black text-balance leading-tight"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.2, duration: 0.8 }}
-                >
+                <h2 className="text-6xl font-black text-balance leading-tight text-white">
                   Compress Images with{' '}
-                  <span className="gradient-text-primary">Elegant Simplicity</span>
-                </motion.h2>
-                <motion.p 
-                  className="text-xl text-neutral-300 max-w-3xl mx-auto leading-relaxed"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.4, duration: 0.8 }}
-                >
+                  <span className="bg-gradient-to-r from-blue-500 to-purple-600 bg-clip-text text-transparent">
+                    Elegant Simplicity
+                  </span>
+                </h2>
+                <p className="text-xl text-neutral-300 max-w-3xl mx-auto leading-relaxed">
                   Experience the future of image compression with our cutting-edge algorithms. Optimize your photos without losing quality, all wrapped in a stunning interface.
-                </motion.p>
+                </p>
               </div>
-            </motion.div>
+            </div>
 
             {/* Image Dropzone */}
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3, duration: 0.8 }}
-            >
+            <div>
               <ImageDropzone
                 onFilesSelected={handleFilesSelected}
                 selectedFiles={selectedFiles}
                 maxFiles={50}
                 maxFileSize={50 * 1024 * 1024} // 50MB
               />
-            </motion.div>
+            </div>
 
             {/* Compression Settings */}
             {selectedFiles.length > 0 && (
-              <motion.div
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.4, duration: 0.8 }}
-              >
+              <div>
                 <CompressionSettings
                   options={compressionOptions}
                   onOptionsChange={setCompressionOptions}
                 />
-              </motion.div>
+              </div>
             )}
 
             {/* Compress Button */}
             {selectedFiles.length > 0 && (
-              <motion.div
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.5, duration: 0.8 }}
-                className="flex justify-center"
-              >
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
+              <div className="flex justify-center">
+                <button
                   onClick={handleCompress}
                   disabled={isCompressing}
-                  className="btn-primary text-lg px-8 py-4 flex items-center space-x-3"
+                  className="bg-gradient-to-r from-blue-500 to-purple-600 text-white text-lg px-8 py-4 rounded-xl flex items-center space-x-3 hover:scale-105 transition-transform disabled:opacity-50"
                 >
                   {isCompressing ? (
                     <>
-                      <div className="spinner-glow"></div>
+                      <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                       <span>Compressing...</span>
                     </>
                   ) : (
@@ -231,23 +182,18 @@ const App: React.FC = () => {
                       <Sparkles className="w-5 h-5" />
                     </>
                   )}
-                </motion.button>
-              </motion.div>
+                </button>
+              </div>
             )}
           </div>
 
-          {/* Right Column - Stats & Features */}
+          {/* Right Column */}
           <div className="space-y-8">
             {/* Stats Panel */}
             {(selectedFiles.length > 0 || compressedImages.length > 0) && (
-              <motion.div
-                initial={{ opacity: 0, x: 30 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.7, duration: 0.8 }}
-                className="glass-panel rounded-2xl p-6"
-              >
+              <div className="bg-neutral-900/50 backdrop-blur-xl border border-white/[0.08] rounded-2xl p-6">
                 <div className="flex items-center space-x-3 mb-4">
-                  <div className="w-10 h-10 gradient-bg-primary rounded-xl flex items-center justify-center">
+                  <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center">
                     <BarChart3 className="w-5 h-5 text-white" />
                   </div>
                   <div>
@@ -278,18 +224,13 @@ const App: React.FC = () => {
                     </>
                   )}
                 </div>
-              </motion.div>
+              </div>
             )}
 
             {/* Features Panel */}
-            <motion.div
-              initial={{ opacity: 0, x: 30 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.8, duration: 0.8 }}
-              className="glass-panel rounded-2xl p-6"
-            >
+            <div className="bg-neutral-900/50 backdrop-blur-xl border border-white/[0.08] rounded-2xl p-6">
               <div className="flex items-center space-x-3 mb-4">
-                <div className="w-10 h-10 gradient-bg-accent rounded-xl flex items-center justify-center">
+                <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl flex items-center justify-center">
                   <Sparkles className="w-5 h-5 text-white" />
                 </div>
                 <div>
@@ -300,31 +241,31 @@ const App: React.FC = () => {
               
               <div className="space-y-3">
                 <div className="flex items-center space-x-3">
-                  <div className="w-5 h-5 gradient-bg-primary rounded-full flex items-center justify-center">
+                  <div className="w-5 h-5 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
                     <Check className="w-3 h-3 text-white" />
                   </div>
                   <span className="text-sm text-neutral-300">Client-side processing</span>
                 </div>
                 <div className="flex items-center space-x-3">
-                  <div className="w-5 h-5 gradient-bg-primary rounded-full flex items-center justify-center">
+                  <div className="w-5 h-5 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
                     <Check className="w-3 h-3 text-white" />
                   </div>
                   <span className="text-sm text-neutral-300">Batch processing</span>
                 </div>
                 <div className="flex items-center space-x-3">
-                  <div className="w-5 h-5 gradient-bg-primary rounded-full flex items-center justify-center">
+                  <div className="w-5 h-5 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
                     <Check className="w-3 h-3 text-white" />
                   </div>
                   <span className="text-sm text-neutral-300">Multiple formats</span>
                 </div>
                 <div className="flex items-center space-x-3">
-                  <div className="w-5 h-5 gradient-bg-primary rounded-full flex items-center justify-center">
+                  <div className="w-5 h-5 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
                     <Check className="w-3 h-3 text-white" />
                   </div>
                   <span className="text-sm text-neutral-300">Quality preservation</span>
                 </div>
               </div>
-            </motion.div>
+            </div>
           </div>
         </div>
       </main>
@@ -332,18 +273,13 @@ const App: React.FC = () => {
       {/* Results Section */}
       {compressedImages.length > 0 && (
         <section className="w-full bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-950 py-12">
-          <div className="container-modern">
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.6, duration: 0.8 }}
-              className="space-y-8"
-            >
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="space-y-8">
               {/* Summary Stats */}
-              <div className="glass-panel rounded-2xl p-6 w-full">
+              <div className="bg-neutral-900/50 backdrop-blur-xl border border-white/[0.08] rounded-2xl p-6 w-full">
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                   <div className="text-center">
-                    <div className="text-3xl font-bold gradient-text-primary">{selectedFiles.length}</div>
+                    <div className="text-3xl font-bold bg-gradient-to-r from-blue-500 to-purple-600 bg-clip-text text-transparent">{selectedFiles.length}</div>
                     <div className="text-sm text-neutral-400">Images Processed</div>
                   </div>
                   <div className="text-center">
@@ -359,15 +295,13 @@ const App: React.FC = () => {
                     <div className="text-sm text-neutral-400">Space Saved</div>
                   </div>
                   <div className="text-center">
-                    <motion.button
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
+                    <button
                       onClick={handleDownloadAll}
-                      className="btn-primary w-full py-2 flex items-center justify-center space-x-2"
+                      className="bg-gradient-to-r from-blue-500 to-purple-600 text-white w-full py-2 rounded-xl flex items-center justify-center space-x-2 hover:scale-105 transition-transform"
                     >
                       <Download className="w-4 h-4" />
                       <span>Download All</span>
-                    </motion.button>
+                    </button>
                   </div>
                 </div>
               </div>
@@ -384,56 +318,10 @@ const App: React.FC = () => {
                   ))}
                 </div>
               </div>
-            </motion.div>
+            </div>
           </div>
         </section>
       )}
-
-      {/* Footer */}
-      <motion.footer
-        initial={{ opacity: 0, y: 30 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 1, duration: 0.8 }}
-        className="glass-panel border-t border-white/[0.08] mt-20"
-      >
-        <div className="container-modern py-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div className="space-y-4">
-              <div className="flex items-center space-x-3">
-                <div className="w-8 h-8 gradient-bg-primary rounded-xl flex items-center justify-center">
-                  <Camera className="w-4 h-4 text-white" />
-                </div>
-                <span className="text-lg font-bold text-white">ImageCompress</span>
-              </div>
-              <p className="text-sm text-neutral-400">
-                Professional image compression powered by advanced algorithms. Optimize your photos with precision while maintaining quality.
-              </p>
-              <div className="flex items-center space-x-4 text-xs text-neutral-500">
-                <span>Client-side processing</span>
-                <span>•</span>
-                <span>Privacy focused</span>
-                <span>•</span>
-                <span>Instant results</span>
-              </div>
-            </div>
-            
-            <div>
-              <h4 className="text-white font-semibold mb-4">Key Features</h4>
-              <div className="space-y-2 text-sm text-neutral-400">
-                <div>AI-powered compression</div>
-                <div>Multiple format support</div>
-                <div>Batch processing</div>
-                <div>Real-time preview</div>
-                <div>Quality preservation</div>
-              </div>
-            </div>
-          </div>
-          
-          <div className="border-t border-white/[0.08] mt-8 pt-8 text-center text-sm text-neutral-400">
-            <p>&copy; {new Date().getFullYear()} ImageCompress. All rights reserved. Built with modern web technologies.</p>
-          </div>
-        </div>
-      </motion.footer>
 
       {/* Settings Modal */}
       <SettingsModal
