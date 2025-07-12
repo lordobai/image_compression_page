@@ -1,7 +1,6 @@
 // Environment validation
 const validateEnvironment = () => {
   const required = [
-    'REACT_APP_API_URL',
     'REACT_APP_STRIPE_PRO_PRICE_ID',
     'REACT_APP_STRIPE_ENTERPRISE_PRICE_ID'
   ];
@@ -18,7 +17,7 @@ const validateEnvironment = () => {
 validateEnvironment();
 
 // API endpoints
-const API_BASE_URL = process.env.REACT_APP_API_URL!;
+const API_BASE_URL = process.env.REACT_APP_API_URL || window.location.origin;
 
 export interface CreateCheckoutSessionParams {
   priceId: string;
