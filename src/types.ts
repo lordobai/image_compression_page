@@ -11,13 +11,52 @@ export interface CompressedImage {
   compressedPreviewUrl: string;
 }
 
+// Image compression types
 export interface CompressionOptions {
   quality: number;
+  format: 'jpeg' | 'webp' | 'png';
   maxWidth?: number;
   maxHeight?: number;
-  format: 'jpeg' | 'png' | 'webp' | 'auto';
-  maintainAspectRatio: boolean;
+  maintainAspectRatio?: boolean;
+  progressive?: boolean;
+  optimize?: boolean;
 }
+
+export interface CompressionResult {
+  originalFile: File;
+  compressedFile: File;
+  originalSize: number;
+  compressedSize: number;
+  compressionRatio: number;
+  format: string;
+  dimensions: {
+    original: { width: number; height: number };
+    compressed: { width: number; height: number };
+  };
+}
+
+// App settings types
+export interface AppSettings {
+  // Default Settings
+  defaultCompressionMode: 'preset' | 'smart' | 'custom';
+  defaultQualityPreset: 'highQuality' | 'balanced' | 'highCompression' | 'maximumCompression';
+  
+  // UI Preferences
+  showFileSizes: boolean;
+  autoDownload: boolean;
+  
+  // Performance
+  maxFileSizeMB: number;
+  maxBatchSize: number;
+  
+  // Custom Mode Defaults
+  defaultCustomFormat: 'jpeg' | 'webp' | 'png';
+  defaultCustomQuality: 'ultraHigh' | 'high' | 'medium' | 'low' | 'minimum';
+  defaultCustomMaxWidth?: number;
+  defaultCustomMaxHeight?: number;
+}
+
+export type SettingsKey = keyof AppSettings;
 
 export interface User {
   id: string;
