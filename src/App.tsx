@@ -28,7 +28,7 @@ const App: React.FC = () => {
   const [showSettings, setShowSettings] = useState(false);
   
   // Settings
-  const { settings, updateSetting, resetSettings } = useSettings();
+  const { settings, updateSetting } = useSettings();
 
   // Apply default settings on mount
   useEffect(() => {
