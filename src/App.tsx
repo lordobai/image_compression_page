@@ -1,5 +1,4 @@
 import React, { useState, useCallback } from 'react';
-import { motion } from 'framer-motion';
 import { Toaster, toast } from 'react-hot-toast';
 import { 
   Zap, 
