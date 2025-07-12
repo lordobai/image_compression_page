@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import { Toaster, toast } from 'react-hot-toast';
-import { Camera, Download, Settings, Zap } from 'lucide-react';
+import { Camera, Download, Zap } from 'lucide-react';
 
 // Simple image compression function
 const compressImage = async (file: File, quality: number = 0.8): Promise<File> => {
