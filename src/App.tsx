@@ -667,57 +667,12 @@ const App: React.FC = () => {
           <Route path="/" element={<MainApp />} />
           <Route path="/success" element={<PaymentSuccess />} />
           <Route path="/cancel" element={<PaymentCancel />} />
-        {/* Debug route to test routing */}
-        <Route path="/test" element={
-          <div className="min-h-screen bg-gradient-radial flex items-center justify-center p-4">
-            <div className="glass-panel rounded-3xl p-8 max-w-2xl w-full text-center">
-              <h1 className="text-2xl font-bold text-white mb-4">Test Route Working!</h1>
-              <p className="text-neutral-300 mb-6">If you can see this, routing is working correctly.</p>
-              <a href="/" className="btn-primary">Go Home</a>
-            </div>
-          </div>
-        } />
-        {/* Test success page (no auth required) */}
-        <Route path="/test-success" element={
-          <div className="min-h-screen bg-gradient-radial flex items-center justify-center p-4">
-            <div className="glass-panel rounded-3xl p-8 max-w-2xl w-full text-center">
-              <h1 className="text-2xl font-bold text-white mb-4">Test Success Page</h1>
-              <p className="text-neutral-300 mb-6">This is a test success page without authentication.</p>
-              <p className="text-sm text-neutral-400 mb-4">URL: {window.location.href}</p>
-              <a href="/" className="btn-primary">Go Home</a>
-            </div>
-          </div>
-        } />
-        {/* Debug environment info */}
-        <Route path="/debug" element={
-          <div className="min-h-screen bg-gradient-radial flex items-center justify-center p-4">
-            <div className="glass-panel rounded-3xl p-8 max-w-2xl w-full text-center">
-              <h1 className="text-2xl font-bold text-white mb-4">Debug Information</h1>
-              <div className="text-left space-y-2 text-sm text-neutral-300">
-                <p><strong>NODE_ENV:</strong> {process.env.NODE_ENV}</p>
-                <p><strong>REACT_APP_API_URL:</strong> {process.env.REACT_APP_API_URL}</p>
-                <p><strong>REACT_APP_ENABLE_TEST_MODE:</strong> {process.env.REACT_APP_ENABLE_TEST_MODE}</p>
-                <p><strong>Hostname:</strong> {window.location.hostname}</p>
-                <p><strong>Is Development:</strong> {
-                  (process.env.NODE_ENV === 'development' || 
-                   process.env.REACT_APP_ENABLE_TEST_MODE === 'true' ||
-                   window.location.hostname === 'localhost') ? '✅ Yes' : '❌ No'
-                }</p>
-                <p><strong>Current URL:</strong> {window.location.href}</p>
-                <p><strong>User Agent:</strong> {navigator.userAgent}</p>
-              </div>
-              <a href="/" className="btn-primary mt-6">Go Home</a>
-            </div>
-          </div>
-        } />
-        {/* Catch all route for debugging */}
+        {/* Catch all route */}
         <Route path="*" element={
           <div className="min-h-screen bg-gradient-radial flex items-center justify-center p-4">
             <div className="glass-panel rounded-3xl p-8 max-w-2xl w-full text-center">
               <h1 className="text-2xl font-bold text-white mb-4">Page Not Found</h1>
               <p className="text-neutral-300 mb-6">The page you're looking for doesn't exist.</p>
-              <p className="text-sm text-neutral-400 mb-4">Current URL: {window.location.href}</p>
-              <p className="text-sm text-neutral-400 mb-4">Pathname: {window.location.pathname}</p>
               <a href="/" className="btn-primary">Go Home</a>
             </div>
           </div>

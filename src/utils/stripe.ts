@@ -1,5 +1,24 @@
+// Environment validation
+const validateEnvironment = () => {
+  const required = [
+    'REACT_APP_API_URL',
+    'REACT_APP_STRIPE_PRO_PRICE_ID',
+    'REACT_APP_STRIPE_ENTERPRISE_PRICE_ID'
+  ];
+  
+  const missing = required.filter(key => !process.env[key]);
+  
+  if (missing.length > 0) {
+    console.error('❌ Missing required environment variables:', missing);
+    throw new Error(`Missing required environment variables: ${missing.join(', ')}`);
+  }
+};
+
+// Validate environment on module load
+validateEnvironment();
+
 // API endpoints
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
+const API_BASE_URL = process.env.REACT_APP_API_URL!;
 
 export interface CreateCheckoutSessionParams {
   priceId: string;

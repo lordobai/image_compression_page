@@ -41,7 +41,8 @@
     "dev:full": "npm run build && npm run server",
     "prod": "NODE_ENV=production npm run build && npm run server",
     "prod:build": "NODE_ENV=production npm run build",
-    "prod:start": "NODE_ENV=production npm run server"
+    "prod:start": "NODE_ENV=production npm run server",
+    "vercel-build": "npm run build"
   },
   "eslintConfig": {
     "extends": [

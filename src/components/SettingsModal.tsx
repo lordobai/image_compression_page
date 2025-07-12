@@ -460,7 +460,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                               </div>
                               <div className="flex justify-between">
                                 <span className="text-neutral-400">Environment</span>
-                                <span className="text-white">{process.env.NODE_ENV}</span>
+                                <span className="text-white">Production</span>
                               </div>
                             </div>
                           </div>
