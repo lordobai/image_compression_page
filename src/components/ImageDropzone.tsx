@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
-import { Upload, Image, X, Sparkles, Camera, Zap } from 'lucide-react';
+import { Upload, Image, X, Sparkles, Camera, Zap, Files } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { validateFile, formatFileSize } from '../utils/compression';
 
@@ -9,6 +9,7 @@ interface ImageDropzoneProps {
   maxFiles?: number;
   maxFileSize?: number;
   isPremium?: boolean;
+  selectedFiles?: File[];
 }
 
 export const ImageDropzone: React.FC<ImageDropzoneProps> = ({
@@ -16,6 +17,7 @@ export const ImageDropzone: React.FC<ImageDropzoneProps> = ({
   maxFiles = 10,
   maxFileSize = 10 * 1024 * 1024, // 10MB
   isPremium = false,
+  selectedFiles = [],
 }) => {
   const [error, setError] = useState<string | null>(null);
 
@@ -59,6 +61,38 @@ export const ImageDropzone: React.FC<ImageDropzoneProps> = ({
 
   return (
     <div className="w-full">
+      {/* File count indicator */}
+      {selectedFiles.length > 0 && (
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-6 p-4 glass-light rounded-2xl flex items-center justify-between"
+        >
+          <div className="flex items-center space-x-3">
+            <div className="w-10 h-10 gradient-bg-primary rounded-xl flex items-center justify-center">
+              <Files className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <h3 className="text-lg font-bold text-white">
+                {selectedFiles.length} file{selectedFiles.length !== 1 ? 's' : ''} selected
+              </h3>
+              <p className="text-sm text-neutral-400">
+                Total size: {formatFileSize(selectedFiles.reduce((sum, file) => sum + file.size, 0))}
+              </p>
+            </div>
+          </div>
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => onFilesSelected([])}
+            className="btn-secondary text-sm px-4 py-2 flex items-center space-x-2"
+          >
+            <X className="w-4 h-4" />
+            <span>Clear</span>
+          </motion.button>
+        </motion.div>
+      )}
+
       <motion.div
         className={`dropzone-modern ${isDragActive ? 'dropzone-active' : ''}`}
         whileHover={{ scale: 1.02 }}

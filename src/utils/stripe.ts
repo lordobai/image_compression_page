@@ -8,6 +8,13 @@ export interface CreateCheckoutSessionParams {
   customerEmail?: string;
 }
 
+export interface SubscriptionStatus {
+  isActive: boolean;
+  tier: 'free' | 'pro' | 'enterprise';
+  expiresAt?: string;
+  customerId?: string;
+}
+
 // Create a checkout session for subscription (returns checkout URL)
 export const createCheckoutSession = async (params: CreateCheckoutSessionParams): Promise<{ url: string }> => {
   try {
@@ -27,6 +34,77 @@ export const createCheckoutSession = async (params: CreateCheckoutSessionParams)
     return session;
   } catch (error) {
     console.error('Error creating checkout session:', error);
+    throw error;
+  }
+};
+
+// Check user's subscription status
+export const checkSubscriptionStatus = async (userId: string): Promise<SubscriptionStatus> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/check-subscription`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ userId }),
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to check subscription status');
+    }
+
+    const status = await response.json();
+    return status;
+  } catch (error) {
+    console.error('Error checking subscription status:', error);
+    // Return free tier as fallback
+    return { isActive: false, tier: 'free' };
+  }
+};
+
+// Verify session and activate subscription
+export const verifyPaymentSession = async (sessionId: string, userId: string): Promise<SubscriptionStatus> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/verify-session`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ sessionId, userId }),
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to verify payment session');
+    }
+
+    const status = await response.json();
+    return status;
+  } catch (error) {
+    console.error('Error verifying payment session:', error);
+    throw error;
+  }
+};
+
+// Clear subscription (for testing purposes)
+export const clearSubscription = async (userId: string): Promise<void> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/clear-subscription`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ userId }),
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to clear subscription');
+    }
+
+    // Also clear from localStorage (user-specific and fallback)
+    localStorage.removeItem(`subscription_${userId}`);
+    localStorage.removeItem('subscription'); // Fallback for old format
+  } catch (error) {
+    console.error('Error clearing subscription:', error);
     throw error;
   }
 };

@@ -75,12 +75,34 @@ export const PricingModal: React.FC<PricingModalProps> = ({
         throw new Error('Invalid subscription tier');
       }
 
+      // Use the appropriate URL for success/cancel based on environment
+      let baseUrl;
+      if (process.env.NODE_ENV === 'production') {
+        // In production, use the same domain as the frontend
+        baseUrl = window.location.origin;
+      } else {
+        // In development, use the server port
+        const serverPort = process.env.REACT_APP_API_URL ? new URL(process.env.REACT_APP_API_URL).port : '3001';
+        baseUrl = `${window.location.protocol}//${window.location.hostname}:${serverPort}`;
+      }
+      
+      const successUrl = `${baseUrl}/success?session_id={CHECKOUT_SESSION_ID}`;
+      const cancelUrl = `${baseUrl}/cancel`;
+      
+      console.log('PricingModal: Creating checkout session with:');
+      console.log('  - Price ID:', priceId);
+      console.log('  - Success URL:', successUrl);
+      console.log('  - Cancel URL:', cancelUrl);
+      console.log('  - Origin:', window.location.origin);
+
       const session = await createCheckoutSession({
         priceId,
-        successUrl: `${window.location.origin}/success?session_id={CHECKOUT_SESSION_ID}`,
-        cancelUrl: `${window.location.origin}/cancel`,
+        successUrl,
+        cancelUrl,
         customerEmail: undefined, // Will be collected by Stripe
       });
+
+      console.log('PricingModal: Checkout session created, redirecting to:', session.url);
 
       // Redirect to Stripe Checkout
       window.location.href = session.url;

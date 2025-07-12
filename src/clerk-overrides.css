@@ -1,0 +1,108 @@
+/* Aggressive Clerk UserButton Popover Overrides */
+/* This file contains styles specifically designed to override Clerk's Shadow DOM styling */
+
+/* Target the root of the UserButton popover */
+.cl-userButtonPopover {
+  --clerk-color-text: #f4f4f5 !important;
+  --clerk-color-text-secondary: #a1a1aa !important;
+  --clerk-color-background: #18181b !important;
+  --clerk-color-primary: #38bdf8 !important;
+  --clerk-color-danger: #f87171 !important;
+  color-scheme: dark !important;
+}
+
+/* Force all text elements to be visible */
+.cl-userButtonPopover * {
+  color: #f4f4f5 !important;
+}
+
+/* Specific targeting for different text elements */
+.cl-userButtonPopover [data-clerk-user-button-popover-user-name] {
+  color: #f4f4f5 !important;
+}
+
+.cl-userButtonPopover [data-clerk-user-button-popover-user-identifier] {
+  color: #a1a1aa !important;
+}
+
+.cl-userButtonPopover [data-clerk-user-button-popover-action-button] {
+  color: #f4f4f5 !important;
+}
+
+.cl-userButtonPopover [data-clerk-user-button-popover-action-button="manageAccount"] {
+  color: #38bdf8 !important;
+}
+
+.cl-userButtonPopover [data-clerk-user-button-popover-action-button="signOut"] {
+  color: #f87171 !important;
+}
+
+/* Alternative approach using attribute selectors */
+[data-clerk-user-button-popover] {
+  color: #f4f4f5 !important;
+  background: #18181b !important;
+}
+
+[data-clerk-user-button-popover] * {
+  color: #f4f4f5 !important;
+}
+
+/* Force dark mode on the entire popover */
+.cl-userButtonPopover {
+  filter: brightness(0) invert(1) !important;
+}
+
+/* Reset the filter for specific elements that should keep their colors */
+.cl-userButtonPopover [data-clerk-user-button-popover-action-button="manageAccount"] {
+  filter: none !important;
+  color: #38bdf8 !important;
+}
+
+.cl-userButtonPopover [data-clerk-user-button-popover-action-button="signOut"] {
+  filter: none !important;
+  color: #f87171 !important;
+}
+
+/* Additional aggressive overrides */
+.cl-userButtonPopover,
+.cl-userButtonPopoverCard,
+.cl-userButtonPopoverHeader,
+.cl-userButtonPopoverFooter {
+  background: #18181b !important;
+  color: #f4f4f5 !important;
+  border-color: #27272a !important;
+}
+
+/* Force all text to be visible */
+.cl-userButtonPopover span,
+.cl-userButtonPopover div,
+.cl-userButtonPopover p {
+  color: #f4f4f5 !important;
+}
+
+/* Target specific Clerk classes */
+[class*="cl-userButtonPopover"] {
+  color: #f4f4f5 !important;
+}
+
+[class*="cl-userButtonPopover"] * {
+  color: #f4f4f5 !important;
+}
+
+/* Use CSS custom properties as fallback */
+:root {
+  --clerk-color-text: #f4f4f5 !important;
+  --clerk-color-text-secondary: #a1a1aa !important;
+  --clerk-color-background: #18181b !important;
+  --clerk-color-primary: #38bdf8 !important;
+  --clerk-color-danger: #f87171 !important;
+}
+
+/* More targeted approach - only affect Clerk elements */
+[class*="cl-"] {
+  color: #f4f4f5 !important;
+}
+
+[class*="cl-"] * {
+  color: #f4f4f5 !important;
+} 

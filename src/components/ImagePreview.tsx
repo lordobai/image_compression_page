@@ -21,7 +21,7 @@ export const ImagePreview: React.FC<ImagePreviewProps> = ({ image, onDownload })
   };
 
   const savedBytes = image.originalSize - image.compressedSize;
-  const savedPercentage = (savedBytes / image.originalSize) * 100;
+  const savedPercentage = image.originalSize > 0 ? (savedBytes / image.originalSize) * 100 : 0;
 
   return (
     <motion.div
@@ -29,7 +29,7 @@ export const ImagePreview: React.FC<ImagePreviewProps> = ({ image, onDownload })
       animate={{ opacity: 1, y: 0, scale: 1 }}
       whileHover={{ y: -5 }}
       transition={{ duration: 0.6, ease: "easeOut" }}
-      className="card-modern group"
+      className="card-modern group w-full"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
@@ -150,7 +150,7 @@ export const ImagePreview: React.FC<ImagePreviewProps> = ({ image, onDownload })
               animate={{ scale: 1 }}
               transition={{ delay: 0.5, type: "spring", stiffness: 200 }}
             >
-              {savedPercentage.toFixed(1)}%
+              {isNaN(savedPercentage) || savedPercentage < 0 ? '0.0' : savedPercentage.toFixed(1)}%
             </motion.div>
             <div className="text-xs text-neutral-400">Size Reduced</div>
           </motion.div>
@@ -190,15 +190,18 @@ export const ImagePreview: React.FC<ImagePreviewProps> = ({ image, onDownload })
             <motion.div 
               className="progress-fill-modern"
               initial={{ width: 0 }}
-              animate={{ width: `${savedPercentage}%` }}
+              animate={{ width: `${isNaN(savedPercentage) || savedPercentage < 0 ? 0 : Math.min(savedPercentage, 100)}%` }}
               transition={{ duration: 1, ease: "easeOut", delay: 0.3 }}
             />
           </div>
           
           <div className="text-center">
             <span className="text-sm text-emerald-400 font-semibold">
-              Saved {formatFileSize(savedBytes)}
+              Saved {formatFileSize(Math.max(0, savedBytes))}
             </span>
+            <div className="text-xs text-neutral-400 mt-1">
+              Output: {image.format.toUpperCase()}
+            </div>
           </div>
         </div>
       </div>

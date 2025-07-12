@@ -15,7 +15,7 @@ export interface CompressionOptions {
   quality: number;
   maxWidth?: number;
   maxHeight?: number;
-  format: 'jpeg' | 'png' | 'webp';
+  format: 'jpeg' | 'png' | 'webp' | 'auto';
   maintainAspectRatio: boolean;
 }
 

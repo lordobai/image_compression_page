@@ -1,8 +1,8 @@
-import React, { useState, useCallback } from 'react';
-import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useState, useCallback, useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { Toaster, toast } from 'react-hot-toast';
-import { SignInButton, SignUpButton, UserButton, SignedIn, SignedOut } from '@clerk/clerk-react';
+import { SignInButton, SignUpButton, SignedIn, SignedOut, useUser } from '@clerk/clerk-react';
 import { 
   Zap, 
   Crown, 
@@ -11,7 +11,6 @@ import {
   ArrowRight,
   BarChart3,
   Shield,
-  Zap as Lightning,
   Star,
   Camera,
   Lock,
@@ -26,22 +25,68 @@ import { PricingModal } from './components/PricingModal';
 import { PaymentSuccess } from './components/PaymentSuccess';
 import { PaymentCancel } from './components/PaymentCancel';
 import { TopAdBanner, BottomAdBanner } from './components/AdBanner';
+import { CustomUserButton } from './components/CustomUserButton';
+import { SettingsModal } from './components/SettingsModal';
+import { ThemeProvider } from './contexts/ThemeContext';
 
 import { compressMultipleImages, downloadFile, formatFileSize } from './utils/compression';
 import { CompressionOptions, CompressedImage } from './types';
+import './clerk-overrides.css';
 
 // Main App Component
 const MainApp: React.FC = () => {
+  const { user } = useUser();
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [compressedImages, setCompressedImages] = useState<CompressedImage[]>([]);
   const [isCompressing, setIsCompressing] = useState(false);
   const [showPricing, setShowPricing] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
   const [isPremium, setIsPremium] = useState(false);
+  const [subscriptionTier, setSubscriptionTier] = useState<'free' | 'pro' | 'enterprise'>('free');
   const [compressionOptions, setCompressionOptions] = useState<CompressionOptions>({
     quality: 80,
-    format: 'jpeg',
+    format: 'auto',
     maintainAspectRatio: true,
   });
+
+  // Check subscription status on component mount and when user changes
+  useEffect(() => {
+    const checkSubscription = async () => {
+      try {
+        if (!user) {
+          // Reset subscription when user is not authenticated
+          setIsPremium(false);
+          setSubscriptionTier('free');
+          return;
+        }
+
+        // Use user-specific localStorage key
+        const userSubscriptionKey = `subscription_${user.id}`;
+        const cachedSubscription = localStorage.getItem(userSubscriptionKey);
+        
+        if (cachedSubscription) {
+          const subscription = JSON.parse(cachedSubscription);
+          if (subscription.isActive) {
+            setIsPremium(true);
+            setSubscriptionTier(subscription.tier);
+            return;
+          }
+        }
+
+        // If no cached subscription or it's inactive, check with backend
+        // Note: This would require user authentication to work properly
+        // For now, we'll rely on localStorage
+        setIsPremium(false);
+        setSubscriptionTier('free');
+      } catch (error) {
+        console.error('Error checking subscription:', error);
+        setIsPremium(false);
+        setSubscriptionTier('free');
+      }
+    };
+
+    checkSubscription();
+  }, [user]);
 
   const handleFilesSelected = useCallback((files: File[]) => {
     setSelectedFiles(files);
@@ -54,18 +99,36 @@ const MainApp: React.FC = () => {
       return;
     }
 
+    console.log('=== COMPRESSION START DEBUG ===');
+    console.log('Selected files:', selectedFiles.map(f => ({ name: f.name, size: f.size, type: f.type })));
+    console.log('Current compression options:', compressionOptions);
+    console.log('Quality setting:', compressionOptions.quality);
+    console.log('Format setting:', compressionOptions.format);
+    console.log('Maintain aspect ratio:', compressionOptions.maintainAspectRatio);
+
     setIsCompressing(true);
-    toast.loading('Compressing images...', { id: 'compression' });
+    toast.loading('Compressing...', { id: 'compression' });
 
     try {
+      console.log('Calling compressMultipleImages with options:', compressionOptions);
       const results = await compressMultipleImages(selectedFiles, compressionOptions);
+      console.log('Compression results:', results.map(r => ({
+        originalSize: r.originalSize,
+        compressedSize: r.compressedSize,
+        compressionRatio: r.compressionRatio,
+        quality: r.quality,
+        format: r.format
+      })));
+      
       setCompressedImages(results);
       toast.success(`Successfully compressed ${results.length} image${results.length > 1 ? 's' : ''}`, {
         id: 'compression',
       });
+      console.log('=== COMPRESSION END DEBUG ===');
     } catch (error) {
       toast.error('Failed to compress images', { id: 'compression' });
       console.error('Compression error:', error);
+      console.log('=== COMPRESSION ERROR DEBUG ===');
     } finally {
       setIsCompressing(false);
     }
@@ -176,21 +239,14 @@ const MainApp: React.FC = () => {
                       <Star className="w-3 h-3" />
                     </motion.button>
               )}
-                  <UserButton 
-                    appearance={{
-                      elements: {
-                        avatarBox: "w-10 h-10 rounded-xl overflow-hidden",
-                        userButtonPopoverCard: "bg-neutral-900 border border-neutral-700",
-                        userButtonPopoverActionButton: "text-neutral-300 hover:text-white hover:bg-neutral-800",
-                        userButtonPopoverUserName: "font-bold text-lg text-white tracking-wide", // Make user name more legible
-                      }
-                    }}
-                  />
+                  <CustomUserButton />
                 </div>
               </SignedIn>
               
               <motion.button 
                 whileHover={{ scale: 1.1, rotate: 90 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => setShowSettings(true)}
                 className="glass-button p-3 rounded-xl"
               >
                 <Settings className="w-5 h-5 text-neutral-300" />
@@ -204,10 +260,10 @@ const MainApp: React.FC = () => {
       <TopAdBanner isPremium={isPremium} />
 
       {/* Main Content */}
-      <main className="container-modern py-12 relative z-10">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-          {/* Left Column - Upload & Settings */}
-          <div className="lg:col-span-2 space-y-8">
+      <main className="container-modern py-12 px-4 sm:px-6 lg:px-8 relative z-10">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 lg:gap-12">
+          {/* Main Content - Upload & Settings */}
+          <div className="lg:col-span-3 space-y-8">
             {/* Hero Section */}
             <motion.div
               initial={{ opacity: 0, y: 30 }}
@@ -231,8 +287,7 @@ const MainApp: React.FC = () => {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.4, duration: 0.8 }}
                 >
-                  Experience the future of image compression with our cutting-edge AI-powered algorithms. 
-                  Optimize your photos without losing quality, all wrapped in a stunning interface.
+                  Experience the future of image compression with our cutting-edge AI-powered algorithms. Optimize your photos without losing quality, all wrapped in a stunning interface.
                 </motion.p>
               </div>
               
@@ -259,9 +314,17 @@ const MainApp: React.FC = () => {
             >
               <ImageDropzone
                 onFilesSelected={handleFilesSelected}
+                selectedFiles={selectedFiles}
                 isPremium={isPremium}
-                maxFiles={isPremium ? 50 : 1}
-                maxFileSize={isPremium ? 50 * 1024 * 1024 : 10 * 1024 * 1024}
+                maxFiles={
+                  subscriptionTier === 'enterprise' ? 1000 :
+                  subscriptionTier === 'pro' ? 50 : 1
+                }
+                maxFileSize={
+                  subscriptionTier === 'enterprise' ? 100 * 1024 * 1024 :
+                  subscriptionTier === 'pro' ? 50 * 1024 * 1024 :
+                  10 * 1024 * 1024
+                }
               />
             </motion.div>
 
@@ -310,49 +373,6 @@ const MainApp: React.FC = () => {
                 </motion.button>
               </motion.div>
             )}
-
-            {/* Results Section */}
-            {compressedImages.length > 0 && (
-              <motion.div
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.6, duration: 0.8 }}
-                className="space-y-6"
-              >
-                {/* Summary Stats */}
-                <div className="glass-panel rounded-2xl p-6">
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div className="text-center">
-                      <div className="text-3xl font-bold gradient-text-primary">{selectedFiles.length}</div>
-                      <div className="text-sm text-neutral-400">Images Processed</div>
-                  </div>
-                    <div className="text-center">
-                      <div className="text-3xl font-bold text-emerald-400">
-                        {((totalSaved / totalOriginalSize) * 100).toFixed(1)}%
-                      </div>
-                      <div className="text-sm text-neutral-400">Size Reduced</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-3xl font-bold text-blue-400">
-                          {formatFileSize(totalSaved)}
-                      </div>
-                      <div className="text-sm text-neutral-400">Space Saved</div>
-                    </div>
-                        </div>
-                      </div>
-
-                {/* Compressed Images Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {compressedImages.map((image, index) => (
-                    <ImagePreview
-                      key={index}
-                      image={image}
-                      onDownload={handleDownload}
-                    />
-                  ))}
-                </div>
-              </motion.div>
-            )}
           </div>
 
           {/* Right Column - Stats & Features */}
@@ -370,8 +390,8 @@ const MainApp: React.FC = () => {
                     <Crown className="w-5 h-5 text-white" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-bold text-white">Unlock Pro Features</h3>
-                    <p className="text-sm text-neutral-400">Get the full experience</p>
+                                      <h3 className="text-lg font-bold text-white">Unlock Pro Features</h3>
+                  <p className="text-sm text-neutral-400">Get the full experience</p>
                   </div>
                 </div>
                 
@@ -380,19 +400,19 @@ const MainApp: React.FC = () => {
                     <div className="w-6 h-6 gradient-bg-secondary rounded-lg flex items-center justify-center">
                       <Check className="w-3 h-3 text-white" />
                     </div>
-                    <span className="text-sm text-neutral-300">Batch upload (50 images)</span>
+                    <span className="text-sm text-neutral-300">Batch upload (up to 50 images)</span>
                   </div>
                   <div className="flex items-center space-x-3">
                     <div className="w-6 h-6 gradient-bg-secondary rounded-lg flex items-center justify-center">
                       <Check className="w-3 h-3 text-white" />
                     </div>
-                    <span className="text-sm text-neutral-300">Larger files (50MB)</span>
+                    <span className="text-sm text-neutral-300">Larger files (up to 50MB)</span>
                   </div>
                   <div className="flex items-center space-x-3">
                     <div className="w-6 h-6 gradient-bg-secondary rounded-lg flex items-center justify-center">
                       <Check className="w-3 h-3 text-white" />
                     </div>
-                    <span className="text-sm text-neutral-300">Advanced options</span>
+                    <span className="text-sm text-neutral-300">Advanced compression options</span>
                   </div>
                   <div className="flex items-center space-x-3">
                     <div className="w-6 h-6 gradient-bg-secondary rounded-lg flex items-center justify-center">
@@ -436,17 +456,36 @@ const MainApp: React.FC = () => {
 
               <div className="space-y-4">
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-neutral-300">Files processed today</span>
-                  <span className="text-sm font-semibold text-white">0</span>
+                  <span className="text-sm text-neutral-300">Files processed</span>
+                  <span className="text-sm font-semibold text-white">{compressedImages.length}</span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-neutral-300">Total space saved</span>
-                  <span className="text-sm font-semibold text-white">0 MB</span>
+                  <span className="text-sm font-semibold text-white">{formatFileSize(totalSaved)}</span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-neutral-300">Average compression</span>
-                  <span className="text-sm font-semibold text-white">0%</span>
+                  <span className="text-sm font-semibold text-white">
+                    {compressedImages.length > 0 
+                      ? ((totalSaved / totalOriginalSize) * 100).toFixed(1) + '%'
+                      : '0%'
+                    }
+                  </span>
                 </div>
+                {compressedImages.length > 0 && (
+                  <>
+                    <div className="border-t border-white/[0.1] pt-3">
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-neutral-300">Original size</span>
+                        <span className="text-sm font-semibold text-white">{formatFileSize(totalOriginalSize)}</span>
+                      </div>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-neutral-300">Compressed size</span>
+                      <span className="text-sm font-semibold text-emerald-400">{formatFileSize(totalCompressedSize)}</span>
+                    </div>
+                  </>
+                )}
               </div>
             </motion.div>
 
@@ -492,6 +531,55 @@ const MainApp: React.FC = () => {
         </div>
       </main>
 
+      {/* Results Section - COMPLETELY OUTSIDE MAIN CONTAINER */}
+      {compressedImages.length > 0 && (
+        <section className="w-full bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-950 py-12">
+          <div className="container-modern">
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.6, duration: 0.8 }}
+              className="space-y-8"
+            >
+              {/* Summary Stats */}
+              <div className="glass-panel rounded-2xl p-6 w-full">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <div className="text-center">
+                    <div className="text-3xl font-bold gradient-text-primary">{selectedFiles.length}</div>
+                    <div className="text-sm text-neutral-400">Images Processed</div>
+                </div>
+                  <div className="text-center">
+                    <div className="text-3xl font-bold text-emerald-400">
+                      {((totalSaved / totalOriginalSize) * 100).toFixed(1)}%
+                    </div>
+                    <div className="text-sm text-neutral-400">Size Reduced</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-3xl font-bold text-blue-400">
+                        {formatFileSize(totalSaved)}
+                    </div>
+                    <div className="text-sm text-neutral-400">Space Saved</div>
+                  </div>
+                      </div>
+                    </div>
+
+              {/* Compressed Images - Full Width Cards */}
+              <div className="w-full">
+                <div className="space-y-6">
+                  {compressedImages.map((image, index) => (
+                    <ImagePreview
+                      key={index}
+                      image={image}
+                      onDownload={handleDownload}
+                    />
+                  ))}
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        </section>
+      )}
+
       {/* Bottom Ad Banner */}
       <BottomAdBanner isPremium={isPremium} />
 
@@ -503,7 +591,7 @@ const MainApp: React.FC = () => {
         className="glass-panel border-t border-white/[0.08] mt-20"
       >
         <div className="container-modern py-8">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="space-y-4">
               <div className="flex items-center space-x-3">
                 <div className="w-8 h-8 gradient-bg-primary rounded-xl flex items-center justify-center">
@@ -512,43 +600,40 @@ const MainApp: React.FC = () => {
                 <span className="text-lg font-bold text-white">ImageCompress</span>
               </div>
               <p className="text-sm text-neutral-400">
-                The future of image compression, designed with elegance and powered by cutting-edge technology.
+                Advanced image compression powered by cutting-edge technology. Optimize your images with elegance and precision.
               </p>
-            </div>
-            
-            <div>
-              <h4 className="text-white font-semibold mb-4">Product</h4>
-              <div className="space-y-2 text-sm text-neutral-400">
-                <div>Features</div>
-                <div>Pricing</div>
-                <div>API</div>
-                <div>Documentation</div>
+              <div className="flex items-center space-x-4 text-xs text-neutral-500">
+                <span>Client-side processing</span>
+                <span>•</span>
+                <span>Privacy focused</span>
+                <span>•</span>
+                <span>Instant results</span>
               </div>
             </div>
             
             <div>
-              <h4 className="text-white font-semibold mb-4">Company</h4>
+              <h4 className="text-white font-semibold mb-4">Features</h4>
               <div className="space-y-2 text-sm text-neutral-400">
-                <div>About</div>
-                <div>Blog</div>
-                <div>Careers</div>
-                <div>Contact</div>
+                <div>Smart compression</div>
+                <div>Multiple formats</div>
+                <div>Batch processing</div>
+                <div>Quality control</div>
               </div>
             </div>
             
             <div>
-              <h4 className="text-white font-semibold mb-4">Support</h4>
+              <h4 className="text-white font-semibold mb-4">Legal</h4>
               <div className="space-y-2 text-sm text-neutral-400">
-                <div>Help Center</div>
-                <div>Status</div>
-                <div>Terms</div>
-                <div>Privacy</div>
+                <div>Privacy Policy</div>
+                <div>Terms of Service</div>
+                <div>Cookie Policy</div>
+                <div>Data Protection</div>
               </div>
             </div>
           </div>
           
           <div className="border-t border-white/[0.08] mt-8 pt-8 text-center text-sm text-neutral-400">
-            <p>&copy; {new Date().getFullYear()} ImageCompress. All rights reserved.</p>
+            <p>&copy; {new Date().getFullYear()} ImageCompress. All rights reserved. Built with modern web technologies.</p>
           </div>
         </div>
       </motion.footer>
@@ -559,6 +644,16 @@ const MainApp: React.FC = () => {
         onClose={() => setShowPricing(false)}
         onSubscribe={handleSubscribe}
       />
+
+      {/* Settings Modal */}
+      <SettingsModal
+        isOpen={showSettings}
+        onClose={() => setShowSettings(false)}
+        isPremium={isPremium}
+        subscriptionTier={subscriptionTier}
+        compressionOptions={compressionOptions}
+        onCompressionOptionsChange={setCompressionOptions}
+      />
     </div>
   );
 };
@@ -566,13 +661,70 @@ const MainApp: React.FC = () => {
 // Router Wrapper
 const App: React.FC = () => {
   return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<MainApp />} />
-        <Route path="/success" element={<PaymentSuccess />} />
-        <Route path="/cancel" element={<PaymentCancel />} />
+    <ThemeProvider>
+      <Router>
+        <Routes>
+          <Route path="/" element={<MainApp />} />
+          <Route path="/success" element={<PaymentSuccess />} />
+          <Route path="/cancel" element={<PaymentCancel />} />
+        {/* Debug route to test routing */}
+        <Route path="/test" element={
+          <div className="min-h-screen bg-gradient-radial flex items-center justify-center p-4">
+            <div className="glass-panel rounded-3xl p-8 max-w-2xl w-full text-center">
+              <h1 className="text-2xl font-bold text-white mb-4">Test Route Working!</h1>
+              <p className="text-neutral-300 mb-6">If you can see this, routing is working correctly.</p>
+              <a href="/" className="btn-primary">Go Home</a>
+            </div>
+          </div>
+        } />
+        {/* Test success page (no auth required) */}
+        <Route path="/test-success" element={
+          <div className="min-h-screen bg-gradient-radial flex items-center justify-center p-4">
+            <div className="glass-panel rounded-3xl p-8 max-w-2xl w-full text-center">
+              <h1 className="text-2xl font-bold text-white mb-4">Test Success Page</h1>
+              <p className="text-neutral-300 mb-6">This is a test success page without authentication.</p>
+              <p className="text-sm text-neutral-400 mb-4">URL: {window.location.href}</p>
+              <a href="/" className="btn-primary">Go Home</a>
+            </div>
+          </div>
+        } />
+        {/* Debug environment info */}
+        <Route path="/debug" element={
+          <div className="min-h-screen bg-gradient-radial flex items-center justify-center p-4">
+            <div className="glass-panel rounded-3xl p-8 max-w-2xl w-full text-center">
+              <h1 className="text-2xl font-bold text-white mb-4">Debug Information</h1>
+              <div className="text-left space-y-2 text-sm text-neutral-300">
+                <p><strong>NODE_ENV:</strong> {process.env.NODE_ENV}</p>
+                <p><strong>REACT_APP_API_URL:</strong> {process.env.REACT_APP_API_URL}</p>
+                <p><strong>REACT_APP_ENABLE_TEST_MODE:</strong> {process.env.REACT_APP_ENABLE_TEST_MODE}</p>
+                <p><strong>Hostname:</strong> {window.location.hostname}</p>
+                <p><strong>Is Development:</strong> {
+                  (process.env.NODE_ENV === 'development' || 
+                   process.env.REACT_APP_ENABLE_TEST_MODE === 'true' ||
+                   window.location.hostname === 'localhost') ? '✅ Yes' : '❌ No'
+                }</p>
+                <p><strong>Current URL:</strong> {window.location.href}</p>
+                <p><strong>User Agent:</strong> {navigator.userAgent}</p>
+              </div>
+              <a href="/" className="btn-primary mt-6">Go Home</a>
+            </div>
+          </div>
+        } />
+        {/* Catch all route for debugging */}
+        <Route path="*" element={
+          <div className="min-h-screen bg-gradient-radial flex items-center justify-center p-4">
+            <div className="glass-panel rounded-3xl p-8 max-w-2xl w-full text-center">
+              <h1 className="text-2xl font-bold text-white mb-4">Page Not Found</h1>
+              <p className="text-neutral-300 mb-6">The page you're looking for doesn't exist.</p>
+              <p className="text-sm text-neutral-400 mb-4">Current URL: {window.location.href}</p>
+              <p className="text-sm text-neutral-400 mb-4">Pathname: {window.location.pathname}</p>
+              <a href="/" className="btn-primary">Go Home</a>
+            </div>
+          </div>
+        } />
       </Routes>
-    </Router>
+        </Router>
+    </ThemeProvider>
   );
 };
 
