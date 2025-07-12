@@ -3,16 +3,13 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   X, 
   Settings, 
-  User, 
   Palette, 
   Image, 
   Info, 
-  Crown,
   Download,
   Shield,
   Zap,
   Check,
-  AlertCircle,
   Moon,
   Sun,
   Monitor,
@@ -21,31 +18,26 @@ import {
   FileDown,
   Highlighter
 } from 'lucide-react';
-import { useUser } from '@clerk/clerk-react';
 import { useTheme } from '../contexts/ThemeContext';
+import { CompressionOptions } from '../types';
 
 interface SettingsModalProps {
   isOpen: boolean;
   onClose: () => void;
-  isPremium: boolean;
-  subscriptionTier: string;
-  compressionOptions: any;
-  onCompressionOptionsChange: (options: any) => void;
+  compressionOptions: CompressionOptions;
+  onCompressionOptionsChange: (options: CompressionOptions) => void;
 }
 
 export const SettingsModal: React.FC<SettingsModalProps> = ({
   isOpen,
   onClose,
-  isPremium,
-  subscriptionTier,
   compressionOptions,
   onCompressionOptionsChange
 }) => {
-  const { user } = useUser();
   const { theme, setTheme } = useTheme();
   const [activeTab, setActiveTab] = useState('general');
   const [defaultQuality, setDefaultQuality] = useState(compressionOptions.quality);
-  const [defaultFormat, setDefaultFormat] = useState(compressionOptions.format);
+  const [defaultFormat, setDefaultFormat] = useState<'jpeg' | 'png' | 'webp' | 'auto'>(compressionOptions.format);
 
   const qualityPresets = [
     {
@@ -89,7 +81,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   const tabs = [
     { id: 'general', label: 'General', icon: Settings },
     { id: 'compression', label: 'Compression', icon: Image },
-    { id: 'account', label: 'Account', icon: User },
     { id: 'about', label: 'About', icon: Info },
   ];
 
@@ -100,17 +91,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
       format: defaultFormat,
     });
   };
-
-  const getSubscriptionStatus = () => {
-    if (!isPremium) return { status: 'Free', color: 'text-neutral-400', icon: AlertCircle };
-    switch (subscriptionTier) {
-      case 'pro': return { status: 'Pro', color: 'text-blue-400', icon: Crown };
-      case 'enterprise': return { status: 'Enterprise', color: 'text-purple-400', icon: Zap };
-      default: return { status: 'Free', color: 'text-neutral-400', icon: AlertCircle };
-    }
-  };
-
-  const subscriptionInfo = getSubscriptionStatus();
 
   return (
     <AnimatePresence>
@@ -321,7 +301,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                             </div>
                             <p className="text-sm text-neutral-400 mb-3">Choose your preferred output format</p>
                             <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-                              {['auto', 'jpeg', 'png', 'webp'].map((format) => (
+                              {(['auto', 'jpeg', 'png', 'webp'] as const).map((format) => (
                                 <motion.button
                                   key={format}
                                   whileHover={{ scale: 1.02 }}
@@ -350,83 +330,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                               <span>Save as Default</span>
                             </div>
                           </motion.button>
-                        </div>
-                      </div>
-                    </motion.div>
-                  )}
-
-                  {activeTab === 'account' && (
-                    <motion.div
-                      key="account"
-                      initial={{ opacity: 0, x: 20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: -20 }}
-                      className="space-y-6"
-                    >
-                      <div>
-                        <h3 className="text-lg font-bold text-white mb-4">Account Information</h3>
-                        
-                        <div className="space-y-4">
-                          <div className="bg-neutral-800/80 backdrop-blur-sm border border-white/[0.05] rounded-2xl p-4">
-                            <div className="flex items-center space-x-3 mb-4">
-                              <User className="w-5 h-5 text-blue-400" />
-                              <span className="font-medium text-white">Profile</span>
-                            </div>
-                            {user ? (
-                              <div className="space-y-3">
-                                <div className="flex items-center space-x-3">
-                                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
-                                    <span className="text-white font-bold text-lg">
-                                      {user.firstName?.[0] || user.emailAddresses[0]?.emailAddress[0] || 'U'}
-                                    </span>
-                                  </div>
-                                  <div>
-                                    <div className="font-medium text-white">
-                                      {user.firstName && user.lastName 
-                                        ? `${user.firstName} ${user.lastName}`
-                                        : user.emailAddresses[0]?.emailAddress || 'User'
-                                      }
-                                    </div>
-                                    <div className="text-sm text-neutral-400">
-                                      {user.emailAddresses[0]?.emailAddress}
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-                            ) : (
-                              <p className="text-sm text-neutral-400">Please sign in to view your profile</p>
-                            )}
-                          </div>
-
-                          <div className="bg-neutral-800/80 backdrop-blur-sm border border-white/[0.05] rounded-2xl p-4">
-                            <div className="flex items-center space-x-3 mb-4">
-                              <Crown className="w-5 h-5 text-yellow-400" />
-                              <span className="font-medium text-white">Subscription</span>
-                            </div>
-                            <div className="flex items-center justify-between">
-                              <div className="flex items-center space-x-3">
-                                <subscriptionInfo.icon className={`w-5 h-5 ${subscriptionInfo.color}`} />
-                                <span className={`font-medium ${subscriptionInfo.color}`}>
-                                  {subscriptionInfo.status}
-                                </span>
-                              </div>
-                              {!isPremium && (
-                                <motion.button
-                                  whileHover={{ scale: 1.05 }}
-                                  whileTap={{ scale: 0.95 }}
-                                  className="btn-primary text-sm"
-                                >
-                                  Upgrade
-                                </motion.button>
-                              )}
-                            </div>
-                            <p className="text-sm text-neutral-400 mt-2">
-                              {isPremium 
-                                ? `You have access to all ${subscriptionInfo.status} features`
-                                : 'Upgrade to unlock advanced features and remove limits'
-                              }
-                            </p>
-                          </div>
                         </div>
                       </div>
                     </motion.div>

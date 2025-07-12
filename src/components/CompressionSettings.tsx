@@ -6,13 +6,11 @@ import { CompressionOptions } from '../types';
 interface CompressionSettingsProps {
   options: CompressionOptions;
   onOptionsChange: (options: CompressionOptions) => void;
-  isPremium?: boolean;
 }
 
 export const CompressionSettings: React.FC<CompressionSettingsProps> = ({
   options,
   onOptionsChange,
-  isPremium = false,
 }) => {
   const handleQualityChange = (quality: number) => {
     onOptionsChange({ ...options, quality });
@@ -302,7 +300,7 @@ export const CompressionSettings: React.FC<CompressionSettingsProps> = ({
         </div>
 
         {/* Premium Features */}
-        {!isPremium && (
+                    {(
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}

@@ -8,7 +8,6 @@ interface ImageDropzoneProps {
   onFilesSelected: (files: File[]) => void;
   maxFiles?: number;
   maxFileSize?: number;
-  isPremium?: boolean;
   selectedFiles?: File[];
 }
 
@@ -16,7 +15,6 @@ export const ImageDropzone: React.FC<ImageDropzoneProps> = ({
   onFilesSelected,
   maxFiles = 10,
   maxFileSize = 10 * 1024 * 1024, // 10MB
-  isPremium = false,
   selectedFiles = [],
 }) => {
   const [error, setError] = useState<string | null>(null);
@@ -54,7 +52,7 @@ export const ImageDropzone: React.FC<ImageDropzoneProps> = ({
     },
     maxFiles,
     maxSize: maxFileSize,
-    multiple: isPremium || maxFiles > 1,
+    multiple: maxFiles > 1,
   });
 
   const rootProps = getRootProps();
@@ -224,7 +222,7 @@ export const ImageDropzone: React.FC<ImageDropzoneProps> = ({
               Drag & drop or click to select JPEG, PNG, or WebP files
             </motion.p>
             
-            {!isPremium && maxFiles > 1 && (
+                          {maxFiles > 1 && (
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -262,7 +260,7 @@ export const ImageDropzone: React.FC<ImageDropzoneProps> = ({
             >
               <Upload className="w-5 h-5 text-purple-400 mx-auto mb-2" />
               <p className="text-xs text-neutral-400 mb-1">Max files</p>
-              <p className="text-sm font-semibold text-white">{isPremium ? maxFiles : 1}</p>
+                              <p className="text-sm font-semibold text-white">{maxFiles}</p>
             </motion.div>
           </div>
         </div>
