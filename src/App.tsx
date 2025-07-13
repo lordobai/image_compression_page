@@ -16,6 +16,7 @@ import { useUser } from '@clerk/clerk-react';
 import { UserProfile } from './components/UserProfile';
 import { TopAdBanner, SidebarAdBanner, BottomAdBanner } from './components/ads';
 
+
 const App: React.FC = () => {
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [compressedImages, setCompressedImages] = useState<CompressionResult[]>([]);
@@ -140,17 +141,17 @@ const App: React.FC = () => {
     
     if (imageFiles.length === 0) {
       toast.error('Please select image files');
-      return;
-    }
-    
+          return;
+        }
+
     // Check file size limits
     const maxSizeBytes = settings.maxFileSizeMB * 1024 * 1024;
     const oversizedFiles = imageFiles.filter(file => file.size > maxSizeBytes);
     
     if (oversizedFiles.length > 0) {
       toast.error(`${oversizedFiles.length} file(s) exceed the ${settings.maxFileSizeMB}MB limit`);
-      return;
-    }
+            return;
+          }
     
     // Check batch size limits
     if (imageFiles.length > settings.maxBatchSize) {
@@ -323,7 +324,7 @@ const App: React.FC = () => {
       />
       
       {/* Header */}
-      <motion.header
+      <motion.header 
         initial={{ y: -30, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         className="glass-panel sticky top-0 z-50 border-b border-white/[0.08]"
@@ -343,7 +344,7 @@ const App: React.FC = () => {
               <div>
                 <h1 className="text-sm sm:text-lg lg:text-2xl font-bold gradient-text-primary">ImageCompress</h1>
                 <p className="text-xs text-neutral-400 font-mono">Pro Edition</p>
-              </div>
+            </div>
               
               {/* Welcome Message */}
               {user ? (
@@ -408,7 +409,7 @@ const App: React.FC = () => {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.2, duration: 0.8 }}
                 >
-                  Compress Images with{' '}
+                Compress Images with{' '}
                   <span className="gradient-text-primary">Elegant Simplicity</span>
                 </motion.h2>
                 <motion.p 
@@ -482,13 +483,13 @@ const App: React.FC = () => {
                           <span>Choose Files</span>
                         </label>
                       </div>
-                    </motion.div>
+            </motion.div>
                   </div>
-                  
+
                   {/* Selected Files */}
                   <AnimatePresence>
-                    {selectedFiles.length > 0 && (
-                      <motion.div
+            {selectedFiles.length > 0 && (
+              <motion.div
                         initial={{ opacity: 0, height: 0 }}
                         animate={{ opacity: 1, height: 'auto' }}
                         exit={{ opacity: 0, height: 0 }}
@@ -518,7 +519,7 @@ const App: React.FC = () => {
                     {selectedFiles.length > 0 && (
                       <motion.div
                         initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
+                animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.2 }}
                         className="space-y-6"
                       >
@@ -896,8 +897,8 @@ const App: React.FC = () => {
                                       </div>
                                     </div>
                                   </div>
-                                </motion.div>
-                              )}
+              </motion.div>
+            )}
                             </AnimatePresence>
                           </motion.div>
                         )}
@@ -907,52 +908,52 @@ const App: React.FC = () => {
 
                   {/* Compress Button & Progress */}
                   <AnimatePresence>
-                    {selectedFiles.length > 0 && (
-                      <motion.div
+            {selectedFiles.length > 0 && (
+              <motion.div
                         initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
+                animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.3 }}
                         className="space-y-4"
-                      >
+              >
 
                         
                         {/* Compress Button */}
                         <div className="flex justify-center">
-                          <motion.button
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                            onClick={handleCompress}
-                            disabled={isCompressing}
-                            className="btn-primary text-lg px-8 py-4 flex items-center space-x-3"
-                          >
-                            {isCompressing ? (
-                              <>
-                                <div className="spinner-glow"></div>
-                                <span>Compressing...</span>
-                              </>
-                            ) : (
-                              <>
-                                <Zap className="w-6 h-6" />
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={handleCompress}
+                  disabled={isCompressing}
+                  className="btn-primary text-lg px-8 py-4 flex items-center space-x-3"
+                >
+                  {isCompressing ? (
+                    <>
+                      <div className="spinner-glow"></div>
+                      <span>Compressing...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Zap className="w-6 h-6" />
                                 <span>
                                   {compressionMode === 'smart' ? 'Smart Compress' : 
                                    compressionMode === 'custom' ? 'Custom Compress' : 'Compress Images'}
                                 </span>
-                                <Sparkles className="w-5 h-5" />
-                              </>
-                            )}
-                          </motion.button>
+                      <Sparkles className="w-5 h-5" />
+                    </>
+                  )}
+                </motion.button>
                         </div>
-                      </motion.div>
-                    )}
+              </motion.div>
+            )}
                   </AnimatePresence>
-                </div>
+          </div>
               </div>
             </motion.div>
 
             {/* Results */}
             <AnimatePresence>
               {compressedImages.length > 0 && (
-                <motion.div
+              <motion.div
                   initial={{ opacity: 0, y: 30 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.4, duration: 0.8 }}
@@ -969,8 +970,8 @@ const App: React.FC = () => {
                         <Download className="w-4 h-4" />
                         <span>Download All</span>
                       </motion.button>
-                    </div>
-                    
+                </div>
+                
                     <div className="space-y-4">
                       {compressedImages.map((image, index) => (
                         <motion.div 
@@ -990,38 +991,38 @@ const App: React.FC = () => {
                             >
                               Download
                             </motion.button>
-                          </div>
+                    </div>
                           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                             {settings.showFileSizes && (
                               <>
                                 <div className="text-center">
                                   <div className="text-neutral-400 mb-1">Original</div>
                                   <div className="text-white font-semibold">{formatFileSize(image.originalSize)}</div>
-                                </div>
+                  </div>
                                 <div className="text-center">
                                   <div className="text-neutral-400 mb-1">Compressed</div>
                                   <div className="text-emerald-400 font-semibold">{formatFileSize(image.compressedSize)}</div>
-                                </div>
+                    </div>
                               </>
                             )}
                             <div className="text-center">
                               <div className="text-neutral-400 mb-1">Saved</div>
                               <div className="text-blue-400 font-semibold">{image.compressionRatio.toFixed(1)}%</div>
-                            </div>
+                  </div>
                             <div className="text-center">
                               <div className="text-neutral-400 mb-1">Format</div>
                               <div className="text-purple-400 font-semibold uppercase">{image.format}</div>
-                            </div>
-                          </div>
-                          <div className="mt-3 text-xs text-neutral-500">
-                            {image.dimensions.original.width}×{image.dimensions.original.height} → {image.dimensions.compressed.width}×{image.dimensions.compressed.height}
-                          </div>
-                        </motion.div>
-                      ))}
                     </div>
                   </div>
-                </motion.div>
-              )}
+                          <div className="mt-3 text-xs text-neutral-500">
+                            {image.dimensions.original.width}×{image.dimensions.original.height} → {image.dimensions.compressed.width}×{image.dimensions.compressed.height}
+                    </div>
+                        </motion.div>
+                      ))}
+                  </div>
+                </div>
+              </motion.div>
+            )}
             </AnimatePresence>
           </div>
 
@@ -1030,50 +1031,50 @@ const App: React.FC = () => {
             {/* Stats Panel */}
             <AnimatePresence>
               {(selectedFiles.length > 0 || compressedImages.length > 0) && (
-                <motion.div
-                  initial={{ opacity: 0, x: 30 }}
-                  animate={{ opacity: 1, x: 0 }}
+            <motion.div
+              initial={{ opacity: 0, x: 30 }}
+              animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.7, duration: 0.8 }}
-                  className="glass-panel rounded-2xl p-6"
-                >
-                  <div className="flex items-center space-x-3 mb-4">
+              className="glass-panel rounded-2xl p-6"
+            >
+              <div className="flex items-center space-x-3 mb-4">
                     <div className="w-10 h-10 gradient-bg-primary rounded-xl flex items-center justify-center">
-                      <BarChart3 className="w-5 h-5 text-white" />
-                    </div>
-                    <div>
-                      <h3 className="text-lg font-bold text-white">Compression Stats</h3>
+                  <BarChart3 className="w-5 h-5 text-white" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-white">Compression Stats</h3>
                       <p className="text-sm text-neutral-400">Performance metrics</p>
-                    </div>
-                  </div>
-                  
+          </div>
+        </div>
+
                   <div className="space-y-3">
-                    <div className="flex justify-between items-center">
+                <div className="flex justify-between items-center">
                       <span className="text-sm text-neutral-300">Files selected</span>
                       <span className="text-sm font-semibold text-white">{selectedFiles.length}</span>
+                </div>
+                {compressedImages.length > 0 && (
+                  <>
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-neutral-300">Original size</span>
+                        <span className="text-sm font-semibold text-white">{formatFileSize(totalOriginalSize)}</span>
                     </div>
-                    {compressedImages.length > 0 && (
-                      <>
-                        <div className="flex justify-between items-center">
-                          <span className="text-sm text-neutral-300">Original size</span>
-                          <span className="text-sm font-semibold text-white">{formatFileSize(totalOriginalSize)}</span>
-                        </div>
-                        <div className="flex justify-between items-center">
-                          <span className="text-sm text-neutral-300">Compressed size</span>
-                          <span className="text-sm font-semibold text-emerald-400">{formatFileSize(totalCompressedSize)}</span>
-                        </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-neutral-300">Compressed size</span>
+                      <span className="text-sm font-semibold text-emerald-400">{formatFileSize(totalCompressedSize)}</span>
+                    </div>
                         <div className="flex justify-between items-center">
                           <span className="text-sm text-neutral-300">Space saved</span>
                           <span className="text-sm font-semibold text-blue-400">{formatFileSize(totalSaved)}</span>
                         </div>
-                      </>
-                    )}
-                  </div>
-                </motion.div>
+                  </>
+                )}
+              </div>
+            </motion.div>
               )}
             </AnimatePresence>
 
             {/* Features Panel */}
-            <motion.div
+          <motion.div
               initial={{ opacity: 0, x: 30 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.8, duration: 0.8 }}
@@ -1120,8 +1121,8 @@ const App: React.FC = () => {
                   </div>
                   <span className="text-sm text-neutral-300">Quality control</span>
                 </div>
-              </div>
-            </motion.div>
+            </div>
+          </motion.div>
           </div>
           
           {/* Sidebar Ad Banner */}
@@ -1135,7 +1136,7 @@ const App: React.FC = () => {
       {/* Settings Modal */}
       <AnimatePresence>
         {showSettings && (
-          <motion.div
+            <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -1154,12 +1155,12 @@ const App: React.FC = () => {
                 <div className="flex items-center space-x-3">
                   <div className="w-10 h-10 gradient-bg-primary rounded-xl flex items-center justify-center">
                     <Settings className="w-5 h-5 text-white" />
-                  </div>
+                </div>
                   <div>
                     <h2 className="text-xl font-bold text-white">Settings</h2>
                     <p className="text-sm text-neutral-400">Customize your experience</p>
+                    </div>
                   </div>
-                </div>
                 <motion.button
                   whileHover={{ scale: 1.1, rotate: 90 }}
                   whileTap={{ scale: 0.95 }}
@@ -1168,7 +1169,7 @@ const App: React.FC = () => {
                 >
                   <span className="text-white text-xl">×</span>
                 </motion.button>
-              </div>
+                    </div>
 
               <div className="space-y-6">
                 {/* Default Compression Mode */}
@@ -1202,9 +1203,9 @@ const App: React.FC = () => {
                         <option value="highCompression">High Compression</option>
                         <option value="maximumCompression">Maximum Compression</option>
                       </select>
-                    </div>
                   </div>
-                </div>
+                      </div>
+                    </div>
 
                 {/* UI Preferences */}
                 <div>
@@ -1226,8 +1227,8 @@ const App: React.FC = () => {
                             settings.showFileSizes ? 'bg-blue-500 translate-x-6' : 'bg-neutral-500 translate-x-0.5'
                           }`}
                         />
-                      </div>
-                    </div>
+                </div>
+              </div>
                     
                     <div className="flex items-center justify-between">
                       <div>
@@ -1245,13 +1246,13 @@ const App: React.FC = () => {
                             settings.autoDownload ? 'bg-blue-500 translate-x-6' : 'bg-neutral-500 translate-x-0.5'
                           }`}
                         />
-                      </div>
-                    </div>
-                  </div>
                 </div>
-
+              </div>
+              </div>
+            </div>
+            
                 {/* Performance */}
-                <div>
+            <div>
                   <h3 className="text-lg font-semibold text-white mb-3">Performance</h3>
                   <div className="space-y-4">
                     <div>
@@ -1282,10 +1283,10 @@ const App: React.FC = () => {
                         <option value={50}>50 files</option>
                         <option value={100}>100 files</option>
                       </select>
-                    </div>
-                  </div>
-                </div>
-
+              </div>
+            </div>
+          </div>
+          
                 {/* About */}
                 <div>
                   <h3 className="text-lg font-semibold text-white mb-3">About</h3>
@@ -1293,11 +1294,11 @@ const App: React.FC = () => {
                     <div className="flex justify-between">
                       <span>Version</span>
                       <span>1.0.0</span>
-                    </div>
+          </div>
                     <div className="flex justify-between">
                       <span>Build</span>
                       <span>2024.01</span>
-                    </div>
+        </div>
                     <div className="flex justify-between">
                       <span>License</span>
                       <span>MIT</span>
@@ -1326,13 +1327,15 @@ const App: React.FC = () => {
                 >
                   Save Settings
                 </motion.button>
-              </div>
+    </div>
             </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
-    </div>
+
+
+            </div>
   );
 };
 
-export default App;
+export default App; 
