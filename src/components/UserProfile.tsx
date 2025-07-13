@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { UserButton, useUser, SignIn } from '@clerk/clerk-react';
-import { User, LogOut, Settings, Crown, LogIn, X } from 'lucide-react';
+import { User, Crown, LogIn, X } from 'lucide-react';
 
 export const UserProfile: React.FC = () => {
   const { user, isSignedIn } = useUser();

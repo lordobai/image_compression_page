@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Toaster, toast } from 'react-hot-toast';
-import { Camera, Download, Zap, Sparkles, Upload, FileImage, BarChart3, Check, Settings, Sliders, User } from 'lucide-react';
+import { Camera, Download, Zap, Sparkles, Upload, FileImage, BarChart3, Check, Settings, Sliders } from 'lucide-react';
 import { 
   compressImages, 
   smartCompress, 
@@ -12,7 +12,7 @@ import {
 } from './utils/compression';
 import { useSettings } from './contexts/SettingsContext';
 import { AppSettings } from './types';
-import { useUser, SignIn, SignUp } from '@clerk/clerk-react';
+import { useUser } from '@clerk/clerk-react';
 import { UserProfile } from './components/UserProfile';
 
 const App: React.FC = () => {
@@ -33,7 +33,7 @@ const App: React.FC = () => {
   const { settings, updateSetting } = useSettings();
   
   // Auth
-  const { isSignedIn, isLoaded, user } = useUser();
+  const { isLoaded, user } = useUser();
 
   // Apply default settings on mount
   useEffect(() => {
