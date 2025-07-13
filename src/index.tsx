@@ -20,7 +20,7 @@ root.render(
   <React.StrictMode>
     <ClerkProvider publishableKey={clerkPubKey}>
       <SettingsProvider>
-        <App />
+      <App />
       </SettingsProvider>
     </ClerkProvider>
   </React.StrictMode>

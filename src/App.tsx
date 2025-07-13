@@ -14,6 +14,7 @@ import { useSettings } from './contexts/SettingsContext';
 import { AppSettings } from './types';
 import { useUser } from '@clerk/clerk-react';
 import { UserProfile } from './components/UserProfile';
+import { TopAdBanner, SidebarAdBanner, BottomAdBanner } from './components/ads';
 
 const App: React.FC = () => {
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
@@ -384,6 +385,9 @@ const App: React.FC = () => {
           </div>
         </div>
       </motion.header>
+
+      {/* Top Ad Banner */}
+      <TopAdBanner isPremium={false} />
 
       {/* Main Content */}
       <main className="container-modern py-12 px-4 sm:px-6 lg:px-8 relative z-10">
@@ -1119,8 +1123,14 @@ const App: React.FC = () => {
               </div>
             </motion.div>
           </div>
+          
+          {/* Sidebar Ad Banner */}
+          <SidebarAdBanner isPremium={false} />
         </div>
       </main>
+
+      {/* Bottom Ad Banner */}
+      <BottomAdBanner isPremium={false} />
 
       {/* Settings Modal */}
       <AnimatePresence>

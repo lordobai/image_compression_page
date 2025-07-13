@@ -269,19 +269,19 @@ export const PricingModal: React.FC<PricingModalProps> = ({
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                         onClick={() => handleSubscribe(tier)}
-                        disabled={isLoading}
+                      disabled={isLoading}
                         className="w-full btn-primary"
-                      >
+                    >
                         <div className="flex items-center justify-center space-x-2">
-                          {isLoading ? (
+                      {isLoading ? (
                             <div className="spinner-glow"></div>
-                          ) : (
-                            <>
+                      ) : (
+                        <>
                               <Zap className="w-5 h-5" />
                               <span>Get {tier.name}</span>
                               <ArrowRight className="w-4 h-4" />
-                            </>
-                          )}
+                        </>
+                      )}
                         </div>
                       </motion.button>
                     </SignedIn>
