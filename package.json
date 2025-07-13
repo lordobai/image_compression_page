@@ -18,6 +18,7 @@
     "imagemin-mozjpeg": "^10.0.0",
     "imagemin-pngquant": "^10.0.0",
     "imagemin-webp": "^8.0.0",
+    "jszip": "^3.10.1",
     "lucide-react": "^0.294.0",
     "postcss": "^8.4.32",
     "react": "^18.2.0",
@@ -69,6 +70,7 @@
     "@types/imagemin": "^9.0.1",
     "@types/imagemin-mozjpeg": "^8.0.4",
     "@types/imagemin-webp": "^7.0.3",
+    "@types/jszip": "^3.4.1",
     "ajv": "^8.17.1",
     "concurrently": "^8.2.2",
     "husky": "^8.0.3"

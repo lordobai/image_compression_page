@@ -48,6 +48,7 @@ export const calculateDimensions = (
   maxHeight?: number,
   maintainAspectRatio: boolean = true
 ): { width: number; height: number } => {
+  // If no max dimensions specified, return original dimensions
   if (!maxWidth && !maxHeight) {
     return { width: originalWidth, height: originalHeight };
   }
@@ -55,17 +56,30 @@ export const calculateDimensions = (
   let newWidth = originalWidth;
   let newHeight = originalHeight;
 
+  // Only resize if the image is larger than the max dimensions
   if (maxWidth && originalWidth > maxWidth) {
     newWidth = maxWidth;
     if (maintainAspectRatio) {
-      newHeight = (originalHeight * maxWidth) / originalWidth;
+      newHeight = Math.round((originalHeight * maxWidth) / originalWidth);
     }
   }
 
   if (maxHeight && newHeight > maxHeight) {
     newHeight = maxHeight;
     if (maintainAspectRatio) {
-      newWidth = (newWidth * maxHeight) / newHeight;
+      newWidth = Math.round((newWidth * maxHeight) / newHeight);
+    }
+  }
+
+  // Ensure we never exceed original dimensions unless explicitly requested
+  if (maintainAspectRatio) {
+    if (newWidth > originalWidth) {
+      newWidth = originalWidth;
+      newHeight = originalHeight;
+    }
+    if (newHeight > originalHeight) {
+      newWidth = originalWidth;
+      newHeight = originalHeight;
     }
   }
 
@@ -81,6 +95,25 @@ export const compressImage = async (
   options: CompressionOptions = { quality: 80, format: 'jpeg' }
 ): Promise<CompressionResult> => {
   return new Promise((resolve, reject) => {
+    // Check if image is already well-compressed
+    if (isAlreadyCompressed(file)) {
+      const originalFormat = getImageFormat(file);
+      const result: CompressionResult = {
+        originalFile: file,
+        compressedFile: file,
+        originalSize: file.size,
+        compressedSize: file.size,
+        compressionRatio: 0,
+        format: originalFormat,
+        dimensions: {
+          original: { width: 0, height: 0 },
+          compressed: { width: 0, height: 0 }
+        }
+      };
+      resolve(result);
+      return;
+    }
+
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d')!;
     const img = new Image();
@@ -135,6 +168,27 @@ export const compressImage = async (
             type: 'image/png',
             lastModified: Date.now(),
           });
+          
+          // Check if compression actually reduced file size
+          if (compressedFile.size >= file.size) {
+            // If compressed file is larger or same size, return original file
+            const originalFormat = getImageFormat(file);
+            const result: CompressionResult = {
+              originalFile: file,
+              compressedFile: file, // Return original file
+              originalSize: file.size,
+              compressedSize: file.size,
+              compressionRatio: 0, // No compression achieved
+              format: originalFormat,
+              dimensions: {
+                original: { width: originalWidth, height: originalHeight },
+                compressed: { width: originalWidth, height: originalHeight }
+              }
+            };
+            resolve(result);
+            return;
+          }
+          
           // Calculate compression ratio, handle cases where PNG might be larger or original size is 0
           let compressionRatio = 0;
           if (file.size > 0) {
@@ -166,6 +220,27 @@ export const compressImage = async (
                   type: `image/${format}`,
                   lastModified: Date.now(),
                 });
+                
+                // Check if compression actually reduced file size
+                if (compressedFile.size >= file.size) {
+                  // If compressed file is larger or same size, return original file
+                  const originalFormat = getImageFormat(file);
+                  const result: CompressionResult = {
+                    originalFile: file,
+                    compressedFile: file, // Return original file
+                    originalSize: file.size,
+                    compressedSize: file.size,
+                    compressionRatio: 0, // No compression achieved
+                    format: originalFormat,
+                    dimensions: {
+                      original: { width: originalWidth, height: originalHeight },
+                      compressed: { width: originalWidth, height: originalHeight }
+                    }
+                  };
+                  resolve(result);
+                  return;
+                }
+                
                 // Calculate compression ratio, handle cases where compressed file is larger or original size is 0
                 let compressionRatio = 0;
                 if (file.size > 0) {
@@ -242,7 +317,8 @@ export const smartCompress = async (
       continue;
     }
     
-    const qualities = [90, 80, 70, 60, 50];
+    // More aggressive quality settings for better compression
+    const qualities = [70, 60, 50, 40, 30, 20];
     
     for (const quality of qualities) {
       try {
@@ -255,7 +331,7 @@ export const smartCompress = async (
         
         // Keep track of the best result (smallest size with good quality)
         if (!bestResult || 
-            (result.compressionRatio > bestResult.compressionRatio && result.compressedSize < bestResult.compressedSize)) {
+            (result.compressedSize < bestResult.compressedSize && result.compressionRatio > 0)) {
           bestResult = result;
         }
       } catch (error) {
@@ -265,10 +341,41 @@ export const smartCompress = async (
   }
   
   if (!bestResult) {
-    throw new Error('Failed to compress image with any format');
+    // If no compression was achieved, return original file
+    const originalFormat = getImageFormat(file);
+    const result: CompressionResult = {
+      originalFile: file,
+      compressedFile: file,
+      originalSize: file.size,
+      compressedSize: file.size,
+      compressionRatio: 0,
+      format: originalFormat,
+      dimensions: {
+        original: { width: 0, height: 0 },
+        compressed: { width: 0, height: 0 }
+      }
+    };
+    return result;
   }
   
   return bestResult;
+};
+
+// Check if image is already well-compressed
+export const isAlreadyCompressed = (file: File): boolean => {
+  const format = getImageFormat(file);
+  
+  // For WebP files, they're likely already well-compressed
+  if (format === 'webp') {
+    return true;
+  }
+  
+  // For small files (< 100KB), they might already be optimized
+  if (file.size < 100 * 1024) {
+    return true;
+  }
+  
+  return false;
 };
 
 // Check WebP support
@@ -317,7 +424,7 @@ export const getCompressionStats = (results: CompressionResult[]) => {
 // Preset compression options
 export const compressionPresets = {
   highQuality: {
-    quality: 90,
+    quality: 75, // Reduced from 90 to 75 for better compression
     format: 'jpeg' as const,
     maxWidth: 1920,
     maxHeight: 1080,
@@ -326,7 +433,7 @@ export const compressionPresets = {
     optimize: true
   },
   balanced: {
-    quality: 80,
+    quality: 65, // Reduced from 80 to 65 for better compression
     format: 'jpeg' as const,
     maxWidth: 1600,
     maxHeight: 900,
@@ -335,7 +442,7 @@ export const compressionPresets = {
     optimize: true
   },
   highCompression: {
-    quality: 60,
+    quality: 50, // Reduced from 60 to 50 for better compression
     format: 'webp' as const,
     maxWidth: 1200,
     maxHeight: 675,
@@ -344,7 +451,7 @@ export const compressionPresets = {
     optimize: true
   },
   maximumCompression: {
-    quality: 40,
+    quality: 30, // Reduced from 40 to 30 for maximum compression
     format: 'webp' as const,
     maxWidth: 800,
     maxHeight: 450,

@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Toaster, toast } from 'react-hot-toast';
-import { Camera, Download, Zap, Sparkles, Upload, FileImage, BarChart3, Check, Settings, Sliders } from 'lucide-react';
+import { Camera, Download, Zap, Sparkles, Upload, FileImage, BarChart3, Check, Settings, Sliders, Trash2, Crown } from 'lucide-react';
 import { 
   compressImages, 
   smartCompress, 
@@ -15,6 +15,20 @@ import { AppSettings } from './types';
 import { useUser } from '@clerk/clerk-react';
 import { UserProfile } from './components/UserProfile';
 import { TopAdBanner, SidebarAdBanner, BottomAdBanner } from './components/ads';
+import { useSubscription } from './contexts/SubscriptionContext';
+import { PremiumUpgradeModal } from './components/PremiumUpgradeModal';
+import { CompressionHistoryModal } from './components/CompressionHistoryModal';
+import { ImageTooltip } from './components/ImageTooltip';
+import { 
+  checkMonthlyUsage, 
+  incrementUsage, 
+  getUserUsage, 
+  addToCompressionHistory, 
+  getCompressionHistory,
+  clearCompressionHistory,
+  CompressionHistoryItem 
+} from './utils/subscription';
+import JSZip from 'jszip';
 
 
 const App: React.FC = () => {
@@ -30,12 +44,24 @@ const App: React.FC = () => {
   const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
   const [isDragOver, setIsDragOver] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+  const [showPremiumModal, setShowPremiumModal] = useState(false);
+  const [premiumModalTrigger, setPremiumModalTrigger] = useState<'limit-reached' | 'feature-locked' | 'manual'>('manual');
+  const [currentUsage, setCurrentUsage] = useState<{ current: number; limit: number; remaining: number } | null>(null);
+  const [compressionHistory, setCompressionHistory] = useState<CompressionHistoryItem[]>([]);
+  const [showHistory, setShowHistory] = useState(false);
   
+  // Add useState for preview URLs
+  const [previewUrls, setPreviewUrls] = useState<string[]>([]);
+  const [compareMode, setCompareMode] = useState<'side-by-side' | 'slider'>('side-by-side');
+
   // Settings
   const { settings, updateSetting } = useSettings();
   
   // Auth
   const { isLoaded, user } = useUser();
+  
+  // Subscription
+  const { subscriptionStatus, usageLimits, isFeatureAvailable, checkUsageLimit } = useSubscription();
 
   // Apply default settings on mount
   useEffect(() => {
@@ -47,19 +73,82 @@ const App: React.FC = () => {
     setCustomMaxHeight(settings.defaultCustomMaxHeight);
   }, [settings]);
 
+  // Handle browser back button and page refresh
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      // Clear any cached data if needed
+      sessionStorage.removeItem('compression-cache');
+    };
+
+    const handlePopState = () => {
+      // Force a re-render when user navigates back
+      window.location.reload();
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    window.addEventListener('popstate', handlePopState);
+
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+      window.removeEventListener('popstate', handlePopState);
+    };
+  }, []);
+
+  // Load current usage for authenticated users
+  useEffect(() => {
+    const loadUsage = async () => {
+      if (user && subscriptionStatus.tier === 'free') {
+        try {
+          const usageCheck = await checkMonthlyUsage();
+          setCurrentUsage({
+            current: usageCheck.currentUsage,
+            limit: usageCheck.limit,
+            remaining: usageCheck.remaining
+          });
+        } catch (error) {
+          console.error('Error loading usage:', error);
+        }
+      }
+    };
+
+    loadUsage();
+  }, [user, subscriptionStatus.tier]);
+
+  // Load compression history for Pro users
+  useEffect(() => {
+    if (isFeatureAvailable('compressionHistory')) {
+      const history = getCompressionHistory();
+      setCompressionHistory(history);
+    }
+  }, []);
+
+  // Generate preview URLs when files are selected
+  useEffect(() => {
+    if (selectedFiles.length > 0) {
+      const urls = selectedFiles.map(file => URL.createObjectURL(file));
+      setPreviewUrls(urls);
+      // Clean up object URLs on unmount or when files change
+      return () => {
+        urls.forEach(url => URL.revokeObjectURL(url));
+      };
+    } else {
+      setPreviewUrls([]);
+    }
+  }, [selectedFiles]);
+
   const qualityPresets = [
     { 
       key: 'highQuality' as const, 
-      value: 90, 
+      value: 75, // Updated to match compression preset
       label: 'High Quality', 
-      description: 'Minimal compression', 
+      description: 'Good compression', 
       icon: Sparkles, 
       color: 'from-emerald-500 to-emerald-600',
       format: 'JPEG'
     },
     { 
       key: 'balanced' as const, 
-      value: 80, 
+      value: 65, // Updated to match compression preset
       label: 'Balanced', 
       description: 'Good balance', 
       icon: Check, 
@@ -68,7 +157,7 @@ const App: React.FC = () => {
     },
     { 
       key: 'highCompression' as const, 
-      value: 60, 
+      value: 50, // Updated to match compression preset
       label: 'High Compression', 
       description: 'Significant savings', 
       icon: Zap, 
@@ -77,7 +166,7 @@ const App: React.FC = () => {
     },
     { 
       key: 'maximumCompression' as const, 
-      value: 40, 
+      value: 30, // Updated to match compression preset
       label: 'Maximum Compression', 
       description: 'Smallest size', 
       icon: Download, 
@@ -141,28 +230,41 @@ const App: React.FC = () => {
     
     if (imageFiles.length === 0) {
       toast.error('Please select image files');
-          return;
-        }
+      return;
+    }
 
+    // Check subscription limits
+    const currentLimits = usageLimits[subscriptionStatus.tier];
+    
     // Check file size limits
-    const maxSizeBytes = settings.maxFileSizeMB * 1024 * 1024;
+    const maxSizeBytes = currentLimits.maxFileSizeMB * 1024 * 1024;
     const oversizedFiles = imageFiles.filter(file => file.size > maxSizeBytes);
     
     if (oversizedFiles.length > 0) {
-      toast.error(`${oversizedFiles.length} file(s) exceed the ${settings.maxFileSizeMB}MB limit`);
-            return;
-          }
+      if (subscriptionStatus.tier === 'free') {
+        setPremiumModalTrigger('limit-reached');
+        setShowPremiumModal(true);
+        return;
+      }
+      toast.error(`${oversizedFiles.length} file(s) exceed the ${currentLimits.maxFileSizeMB}MB limit`);
+      return;
+    }
     
     // Check batch size limits
-    if (imageFiles.length > settings.maxBatchSize) {
-      toast.error(`Maximum ${settings.maxBatchSize} files allowed per batch`);
+    if (imageFiles.length > currentLimits.maxBatchSize) {
+      if (subscriptionStatus.tier === 'free') {
+        setPremiumModalTrigger('limit-reached');
+        setShowPremiumModal(true);
+        return;
+      }
+      toast.error(`Maximum ${currentLimits.maxBatchSize} files allowed per batch`);
       return;
     }
     
     setSelectedFiles(imageFiles);
     setCompressedImages([]);
     toast.success(`Selected ${imageFiles.length} image${imageFiles.length > 1 ? 's' : ''}`);
-  }, [settings.maxFileSizeMB, settings.maxBatchSize]);
+  }, [usageLimits, subscriptionStatus.tier]);
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -186,30 +288,62 @@ const App: React.FC = () => {
       return;
     }
     
+    // Check subscription limits
+    const currentLimits = usageLimits[subscriptionStatus.tier];
+    
     // Check file size limits
-    const maxSizeBytes = settings.maxFileSizeMB * 1024 * 1024;
+    const maxSizeBytes = currentLimits.maxFileSizeMB * 1024 * 1024;
     const oversizedFiles = imageFiles.filter(file => file.size > maxSizeBytes);
     
     if (oversizedFiles.length > 0) {
-      toast.error(`${oversizedFiles.length} file(s) exceed the ${settings.maxFileSizeMB}MB limit`);
+      if (subscriptionStatus.tier === 'free') {
+        setPremiumModalTrigger('limit-reached');
+        setShowPremiumModal(true);
+        return;
+      }
+      toast.error(`${oversizedFiles.length} file(s) exceed the ${currentLimits.maxFileSizeMB}MB limit`);
       return;
     }
     
     // Check batch size limits
-    if (imageFiles.length > settings.maxBatchSize) {
-      toast.error(`Maximum ${settings.maxBatchSize} files allowed per batch`);
+    if (imageFiles.length > currentLimits.maxBatchSize) {
+      if (subscriptionStatus.tier === 'free') {
+        setPremiumModalTrigger('limit-reached');
+        setShowPremiumModal(true);
+        return;
+      }
+      toast.error(`Maximum ${currentLimits.maxBatchSize} files allowed per batch`);
       return;
     }
     
     setSelectedFiles(imageFiles);
     setCompressedImages([]);
     toast.success(`Dropped ${imageFiles.length} image${imageFiles.length > 1 ? 's' : ''}`);
-  }, [settings.maxFileSizeMB, settings.maxBatchSize]);
+  }, [usageLimits, subscriptionStatus.tier]);
 
   const handleCompress = async () => {
     if (selectedFiles.length === 0) {
       toast.error('Please select at least one image');
       return;
+    }
+
+    // Check monthly usage limit for free users
+    if (subscriptionStatus.tier === 'free' && user) {
+      const usageCheck = await checkMonthlyUsage();
+      
+      if (!usageCheck.canProceed) {
+        setPremiumModalTrigger('limit-reached');
+        setShowPremiumModal(true);
+        return;
+      }
+      
+      // Check if this batch would exceed the limit
+      if (usageCheck.remaining < selectedFiles.length) {
+        toast.error(`Monthly limit would be exceeded. You can compress ${usageCheck.remaining} more images this month.`);
+        setPremiumModalTrigger('limit-reached');
+        setShowPremiumModal(true);
+        return;
+      }
     }
 
     setIsCompressing(true);
@@ -254,6 +388,38 @@ const App: React.FC = () => {
         id: 'compression',
       });
       
+      // Track usage for authenticated users
+      if (user && results.length > 0) {
+        const totalSizeSaved = results.reduce((sum, result) => sum + (result.originalSize - result.compressedSize), 0);
+        await incrementUsage(results.length, totalSizeSaved);
+      }
+
+      // Add to compression history for Pro users
+      if (isFeatureAvailable('compressionHistory') && results.length > 0) {
+        results.forEach(result => {
+          // Convert compressed file to data URL for storage
+          const reader = new FileReader();
+          reader.onload = () => {
+            addToCompressionHistory({
+              originalFilename: result.originalFile.name,
+              originalSize: result.originalSize,
+              compressedSize: result.compressedSize,
+              compressionRatio: result.compressionRatio,
+              format: result.format,
+              quality: compressionMode === 'preset' ? 
+                qualityPresets.find(p => p.key === selectedPreset)?.value || 80 :
+                compressionMode === 'custom' ? 
+                customQualityPresets.find(p => p.key === customQualityPreset)?.value || 85 : 80,
+              compressedFileUrl: reader.result as string
+            });
+          };
+          reader.readAsDataURL(result.compressedFile);
+        });
+        
+        // Refresh history display
+        setCompressionHistory(getCompressionHistory());
+      }
+      
       // Auto-download if enabled
       if (settings.autoDownload && results.length > 0) {
         setTimeout(() => {
@@ -274,12 +440,73 @@ const App: React.FC = () => {
   };
 
   const handleDownloadAll = () => {
+    // Check if bulk download is available for free users
+    if (!isFeatureAvailable('bulkDownload') && subscriptionStatus.tier === 'free') {
+      setPremiumModalTrigger('feature-locked');
+      setShowPremiumModal(true);
+      return;
+    }
+    
     compressedImages.forEach((image, index) => {
       setTimeout(() => {
         handleDownload(image);
       }, index * 100);
     });
     toast.success('Starting batch download...');
+  };
+
+  const handleDownloadAllAsZip = async () => {
+    if (!isFeatureAvailable('bulkDownload') && subscriptionStatus.tier === 'free') {
+      setPremiumModalTrigger('feature-locked');
+      setShowPremiumModal(true);
+      return;
+    }
+
+    try {
+      toast.loading('Creating ZIP file...', { id: 'zip' });
+      
+      const zip = new JSZip();
+      
+      compressedImages.forEach((image, index) => {
+        zip.file(image.compressedFile.name, image.compressedFile);
+      });
+      
+      const zipBlob = await zip.generateAsync({ type: 'blob' });
+      const zipUrl = URL.createObjectURL(zipBlob);
+      
+      const link = document.createElement('a');
+      link.href = zipUrl;
+      link.download = `compressed_images_${new Date().toISOString().split('T')[0]}.zip`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      URL.revokeObjectURL(zipUrl);
+      
+      toast.success('ZIP file downloaded!', { id: 'zip' });
+    } catch (error) {
+      console.error('Error creating ZIP:', error);
+      toast.error('Failed to create ZIP file', { id: 'zip' });
+    }
+  };
+
+  const handleClearFiles = () => {
+    setSelectedFiles([]);
+    setCompressedImages([]);
+    
+    // Reset the file input to allow re-uploading the same file
+    const fileInput = document.getElementById('file-input') as HTMLInputElement;
+    if (fileInput) {
+      fileInput.value = '';
+    }
+    
+    toast.success('Files cleared');
+  };
+
+  const handleClearHistory = () => {
+    clearCompressionHistory();
+    setCompressionHistory([]);
+    toast.success('Compression history cleared');
   };
 
   const totalOriginalSize = selectedFiles.reduce((sum, file) => sum + file.size, 0);
@@ -342,9 +569,11 @@ const App: React.FC = () => {
                 <div className="absolute -top-1 -right-1 w-2.5 h-2.5 sm:w-4 sm:h-4 bg-gradient-bg-accent rounded-full animate-pulse"></div>
               </div>
               <div>
-                <h1 className="text-sm sm:text-lg lg:text-2xl font-bold gradient-text-primary">ShrinkMyPhoto</h1>
-                <p className="text-xs text-neutral-400 font-mono">Free Image Compression</p>
-            </div>
+                <a href="/" className="hover:opacity-80 transition-opacity">
+                  <h1 className="text-sm sm:text-lg lg:text-2xl font-bold gradient-text-primary">ShrinkMyPhoto</h1>
+                  <p className="text-xs text-neutral-400 font-mono">Free Image Compression</p>
+                </a>
+              </div>
               
               {/* Welcome Message */}
               {user ? (
@@ -371,6 +600,21 @@ const App: React.FC = () => {
             </motion.div>
             
             <div className="flex items-center space-x-1 sm:space-x-4">
+              {/* Subscription Status */}
+              {subscriptionStatus.tier === 'free' && (
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => {
+                    setPremiumModalTrigger('manual');
+                    setShowPremiumModal(true);
+                  }}
+                  className="glass-button p-1.5 sm:p-3 rounded-xl border border-yellow-500/30"
+                >
+                  <Crown className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-400" />
+                </motion.button>
+              )}
+              
               <motion.button 
                 whileHover={{ scale: 1.1, rotate: 90 }}
                 whileTap={{ scale: 0.95 }}
@@ -388,7 +632,7 @@ const App: React.FC = () => {
       </motion.header>
 
       {/* Top Ad Banner */}
-      <TopAdBanner isPremium={false} />
+      <TopAdBanner isPremium={subscriptionStatus.tier !== 'free'} />
 
       {/* Main Content */}
       <main className="container-modern py-12 px-4 sm:px-6 lg:px-8 relative z-10">
@@ -483,6 +727,59 @@ const App: React.FC = () => {
                           <span>Choose Files</span>
                         </label>
                       </div>
+                      
+                      {/* Free Tier Limits */}
+                      {subscriptionStatus.tier === 'free' && (
+                        <motion.div
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: 0.3 }}
+                          className="mt-4 p-3 glass-light rounded-lg border border-blue-500/20"
+                        >
+                          <div className="text-center">
+                            <p className="text-xs text-neutral-400 mb-2">Free Tier Limits</p>
+                            <div className="flex justify-center items-center space-x-4 text-xs text-neutral-300 mb-2">
+                              <span>• {usageLimits.free.maxFileSizeMB}MB max file size</span>
+                              <span>• {usageLimits.free.maxBatchSize} files per batch</span>
+                              <span>• {usageLimits.free.maxImagesPerMonth} images/month</span>
+                            </div>
+                            
+                            {/* Current Usage Display */}
+                            {currentUsage && user && (
+                              <div className="mb-2 p-2 bg-white/[0.05] rounded-lg">
+                                <div className="text-xs text-neutral-400 mb-1">Monthly Usage</div>
+                                <div className="flex justify-between items-center text-xs">
+                                  <span className="text-neutral-300">
+                                    {currentUsage.current} / {currentUsage.limit} images
+                                  </span>
+                                  <span className={`text-xs ${
+                                    currentUsage.remaining < 10 ? 'text-red-400' : 'text-green-400'
+                                  }`}>
+                                    {currentUsage.remaining} remaining
+                                  </span>
+                                </div>
+                                <div className="w-full bg-white/[0.1] rounded-full h-1 mt-1">
+                                  <div 
+                                    className="bg-gradient-to-r from-blue-500 to-purple-600 h-1 rounded-full transition-all duration-300"
+                                    style={{ width: `${(currentUsage.current / currentUsage.limit) * 100}%` }}
+                                  ></div>
+                                </div>
+                              </div>
+                            )}
+                            
+                            <button
+                              onClick={() => {
+                                setPremiumModalTrigger('manual');
+                                setShowPremiumModal(true);
+                              }}
+                              className="text-xs text-blue-400 hover:text-blue-300 transition-colors flex items-center space-x-1 mx-auto"
+                            >
+                              <Crown className="w-3 h-3" />
+                              <span>Upgrade to Pro for higher limits</span>
+                            </button>
+                          </div>
+                        </motion.div>
+                      )}
             </motion.div>
                   </div>
 
@@ -495,19 +792,32 @@ const App: React.FC = () => {
                         exit={{ opacity: 0, height: 0 }}
                         className="glass-light rounded-xl p-4"
                       >
-                        <h3 className="font-medium mb-3 text-white">Selected Files ({selectedFiles.length})</h3>
-                        <div className="space-y-2">
+                        <div className="flex items-center justify-between mb-3">
+                          <h3 className="font-medium text-white">Selected Files ({selectedFiles.length})</h3>
+                          <motion.button
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            onClick={handleClearFiles}
+                            className="btn-secondary text-sm px-3 py-1 flex items-center space-x-1"
+                          >
+                            <Trash2 className="w-3 h-3" />
+                            <span>Clear</span>
+                          </motion.button>
+                        </div>
+                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 mb-3">
                           {selectedFiles.map((file, index) => (
-                            <motion.div 
-                              key={index}
-                              initial={{ opacity: 0, x: -20 }}
-                              animate={{ opacity: 1, x: 0 }}
-                              transition={{ delay: index * 0.1 }}
-                              className="flex justify-between items-center text-sm bg-white/[0.05] rounded-lg p-3"
-                            >
-                              <span className="text-neutral-300 truncate">{file.name}</span>
-                              <span className="text-neutral-400">{formatFileSize(file.size)}</span>
-                            </motion.div>
+                            <ImageTooltip key={index} file={file}>
+                              <div className="flex flex-col items-center bg-white/[0.05] rounded-lg p-2 cursor-help">
+                                <img
+                                  src={previewUrls[index]}
+                                  alt={file.name}
+                                  className="w-20 h-20 object-contain rounded mb-1 border border-white/[0.1]"
+                                  loading="lazy"
+                                />
+                                <span className="text-xs text-neutral-300 truncate w-20" title={file.name}>{file.name}</span>
+                                <span className="text-xs text-neutral-400">{formatFileSize(file.size)}</span>
+                              </div>
+                            </ImageTooltip>
                           ))}
                         </div>
                       </motion.div>
@@ -959,64 +1269,138 @@ const App: React.FC = () => {
                   transition={{ delay: 0.4, duration: 0.8 }}
                 >
                   <div className="glass-panel rounded-2xl p-8 border border-white/[0.08]">
-                    <div className="flex items-center justify-between mb-6">
-                      <h3 className="text-2xl font-bold text-white">Compression Results</h3>
-                      <motion.button
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                        onClick={handleDownloadAll}
-                        className="btn-secondary flex items-center space-x-2"
-                      >
-                        <Download className="w-4 h-4" />
-                        <span>Download All</span>
-                      </motion.button>
-                </div>
+                            <div className="flex items-center justify-between mb-6">
+          <h3 className="text-2xl font-bold text-white">Compression Results</h3>
+          <div className="flex items-center space-x-3">
+            {/* History Button (Pro only) */}
+            {isFeatureAvailable('compressionHistory') && (
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => setShowHistory(true)}
+                className="btn-secondary flex items-center space-x-2"
+              >
+                <FileImage className="w-4 h-4" />
+                <span>History ({compressionHistory.length})</span>
+              </motion.button>
+            )}
+            
+            {/* ZIP Download Button (Pro only) */}
+            {isFeatureAvailable('bulkDownload') && compressedImages.length > 1 && (
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={handleDownloadAllAsZip}
+                className="btn-secondary flex items-center space-x-2"
+              >
+                <Download className="w-4 h-4" />
+                <span>Download ZIP</span>
+              </motion.button>
+            )}
+            
+            {/* Regular Download All */}
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={handleDownloadAll}
+              className="btn-secondary flex items-center space-x-2"
+            >
+              <Download className="w-4 h-4" />
+              <span>Download All</span>
+              {!isFeatureAvailable('bulkDownload') && subscriptionStatus.tier === 'free' && (
+                <Crown className="w-4 h-4 text-yellow-400" />
+              )}
+            </motion.button>
+          </div>
+        </div>
                 
-                    <div className="space-y-4">
+                    <div className="space-y-6">
                       {compressedImages.map((image, index) => (
-                        <motion.div 
+                        <motion.div
                           key={index}
                           initial={{ opacity: 0, x: -20 }}
                           animate={{ opacity: 1, x: 0 }}
                           transition={{ delay: index * 0.1 }}
-                          className="glass-light rounded-xl p-4"
+                          className="glass-light rounded-xl p-6"
                         >
-                          <div className="flex items-center justify-between mb-3">
-                            <span className="font-medium text-white">{image.compressedFile.name}</span>
+                          {/* Image comparison section - full width */}
+                          <div className="w-full mb-6">
+                            <div className="flex flex-col lg:flex-row lg:space-x-8 items-center justify-center">
+                              {/* Original image */}
+                              <div className="flex flex-col items-center mb-4 lg:mb-0">
+                                <div className="relative">
+                                  <img
+                                    src={previewUrls[index]}
+                                    alt={image.compressedFile.name + ' original'}
+                                    className="w-40 h-40 lg:w-48 lg:h-48 object-contain rounded-lg border border-white/[0.1] shadow-lg"
+                                    loading="lazy"
+                                  />
+                                  <div className="absolute -top-2 -left-2 bg-neutral-800/90 backdrop-blur-sm px-2 py-1 rounded-md border border-white/[0.1]">
+                                    <span className="text-xs font-medium text-neutral-300">Original</span>
+                                  </div>
+                                </div>
+                                <div className="mt-3 text-center">
+                                  <div className="text-sm font-semibold text-neutral-300">{formatFileSize(image.originalSize)}</div>
+                                  <div className="text-xs text-neutral-400">{image.dimensions.original.width}×{image.dimensions.original.height}</div>
+                                </div>
+                              </div>
+
+                              {/* Arrow indicator */}
+                              <div className="flex flex-col items-center mb-4 lg:mb-0">
+                                <div className="w-12 h-12 gradient-bg-primary rounded-full flex items-center justify-center">
+                                  <span className="text-white text-xl font-bold">→</span>
+                                </div>
+                                <div className="mt-2 text-center">
+                                  <div className="text-xs text-neutral-400">Compressed</div>
+                                  <div className="text-xs text-emerald-400 font-medium">{Math.round(((image.originalSize - image.compressedSize) / image.originalSize) * 100)}% smaller</div>
+                                </div>
+                              </div>
+
+                              {/* Compressed image */}
+                              <div className="flex flex-col items-center mb-4 lg:mb-0">
+                                <div className="relative">
+                                  <img
+                                    src={URL.createObjectURL(image.compressedFile)}
+                                    alt={image.compressedFile.name + ' compressed'}
+                                    className="w-40 h-40 lg:w-48 lg:h-48 object-contain rounded-lg border border-emerald-500/30 shadow-lg"
+                                    loading="lazy"
+                                  />
+                                  <div className="absolute -top-2 -left-2 bg-emerald-600/90 backdrop-blur-sm px-2 py-1 rounded-md border border-emerald-400/30">
+                                    <span className="text-xs font-medium text-white">Compressed</span>
+                                  </div>
+                                </div>
+                                <div className="mt-3 text-center">
+                                  <div className="text-sm font-semibold text-emerald-400">{formatFileSize(image.compressedSize)}</div>
+                                  <div className="text-xs text-neutral-400">{image.dimensions.compressed.width}×{image.dimensions.compressed.height}</div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* File info and download section */}
+                          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
+                            <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-6">
+                              <div className="flex items-center space-x-2">
+                                <FileImage className="w-4 h-4 text-neutral-400" />
+                                <span className="text-sm text-neutral-300">{image.compressedFile.name}</span>
+                              </div>
+                              <div className="flex items-center space-x-2">
+                                <BarChart3 className="w-4 h-4 text-neutral-400" />
+                                <span className="text-sm text-neutral-300">Saved {formatFileSize(image.originalSize - image.compressedSize)}</span>
+                              </div>
+                            </div>
+                            
+                            {/* Download button */}
                             <motion.button
                               whileHover={{ scale: 1.05 }}
                               whileTap={{ scale: 0.95 }}
                               onClick={() => handleDownload(image)}
-                              className="btn-primary text-sm px-4 py-2"
+                              className="btn-primary text-sm px-6 py-3 flex items-center space-x-2"
                             >
-                              Download
+                              <Download className="w-4 h-4" />
+                              <span>Download</span>
                             </motion.button>
-                    </div>
-                          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                            {settings.showFileSizes && (
-                              <>
-                                <div className="text-center">
-                                  <div className="text-neutral-400 mb-1">Original</div>
-                                  <div className="text-white font-semibold">{formatFileSize(image.originalSize)}</div>
-                  </div>
-                                <div className="text-center">
-                                  <div className="text-neutral-400 mb-1">Compressed</div>
-                                  <div className="text-emerald-400 font-semibold">{formatFileSize(image.compressedSize)}</div>
-                    </div>
-                              </>
-                            )}
-                            <div className="text-center">
-                              <div className="text-neutral-400 mb-1">Saved</div>
-                              <div className="text-blue-400 font-semibold">{image.compressionRatio.toFixed(1)}%</div>
-                  </div>
-                            <div className="text-center">
-                              <div className="text-neutral-400 mb-1">Format</div>
-                              <div className="text-purple-400 font-semibold uppercase">{image.format}</div>
-                    </div>
-                  </div>
-                          <div className="mt-3 text-xs text-neutral-500">
-                            {image.dimensions.original.width}×{image.dimensions.original.height} → {image.dimensions.compressed.width}×{image.dimensions.compressed.height}
-                    </div>
+                          </div>
                         </motion.div>
                       ))}
                   </div>
@@ -1130,14 +1514,29 @@ const App: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.9, duration: 0.8 }}
           >
-            <SidebarAdBanner isPremium={false} />
+            <SidebarAdBanner isPremium={subscriptionStatus.tier !== 'free'} />
           </motion.div>
         </div>
       </div>
     </main>
 
       {/* Bottom Ad Banner */}
-      <BottomAdBanner isPremium={false} />
+      <BottomAdBanner isPremium={subscriptionStatus.tier !== 'free'} />
+
+      {/* Premium Upgrade Modal */}
+      <PremiumUpgradeModal
+        isOpen={showPremiumModal}
+        onClose={() => setShowPremiumModal(false)}
+        trigger={premiumModalTrigger}
+      />
+
+      {/* Compression History Modal */}
+      <CompressionHistoryModal
+        isOpen={showHistory}
+        onClose={() => setShowHistory(false)}
+        history={compressionHistory}
+        onClearHistory={handleClearHistory}
+      />
 
       {/* Settings Modal */}
       <AnimatePresence>

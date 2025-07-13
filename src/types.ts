@@ -88,4 +88,43 @@ export interface AdConfig {
   enabled: boolean;
   adUnitId: string;
   position: 'top' | 'bottom' | 'sidebar';
+}
+
+// Premium features and subscription management
+export interface SubscriptionStatus {
+  isActive: boolean;
+  tier: 'free' | 'pro' | 'enterprise';
+  currentPeriodEnd?: Date;
+  cancelAtPeriodEnd?: boolean;
+}
+
+export interface UsageLimits {
+  free: {
+    maxFileSizeMB: number;
+    maxBatchSize: number;
+    maxImagesPerMonth: number;
+    features: string[];
+  };
+  pro: {
+    maxFileSizeMB: number;
+    maxBatchSize: number;
+    maxImagesPerMonth: number;
+    features: string[];
+  };
+  enterprise: {
+    maxFileSizeMB: number;
+    maxBatchSize: number;
+    maxImagesPerMonth: number;
+    features: string[];
+  };
+}
+
+export interface PremiumFeatures {
+  watermarking: boolean;
+  bulkDownload: boolean;
+  compressionHistory: boolean;
+  advancedFormats: boolean;
+  prioritySupport: boolean;
+  apiAccess: boolean;
+  customBranding: boolean;
 } 
