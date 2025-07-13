@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { AppSettings, SettingsKey } from '../types';
+import { useUser } from '@clerk/clerk-react';
 
 // Default settings
 const defaultSettings: AppSettings = {
@@ -36,32 +37,45 @@ const SettingsContext = createContext<SettingsContextType | undefined>(undefined
 export const SettingsProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [settings, setSettings] = useState<AppSettings>(defaultSettings);
   const [isLoaded, setIsLoaded] = useState(false);
+  const { user, isSignedIn } = useUser();
 
   // Load settings from localStorage on mount
   useEffect(() => {
     try {
-      const savedSettings = localStorage.getItem('imageCompressSettings');
+      const storageKey = isSignedIn && user?.id 
+        ? `imageCompressSettings_${user.id}` 
+        : 'imageCompressSettings';
+      
+      const savedSettings = localStorage.getItem(storageKey);
       if (savedSettings) {
         const parsed = JSON.parse(savedSettings);
         // Merge with defaults to handle missing properties
         setSettings({ ...defaultSettings, ...parsed });
+      } else {
+        // If no saved settings, use defaults
+        setSettings(defaultSettings);
       }
     } catch (error) {
       console.error('Failed to load settings:', error);
+      setSettings(defaultSettings);
     }
     setIsLoaded(true);
-  }, []);
+  }, [isSignedIn, user?.id]);
 
   // Save settings to localStorage whenever they change
   useEffect(() => {
     if (isLoaded) {
       try {
-        localStorage.setItem('imageCompressSettings', JSON.stringify(settings));
+        const storageKey = isSignedIn && user?.id 
+          ? `imageCompressSettings_${user.id}` 
+          : 'imageCompressSettings';
+        
+        localStorage.setItem(storageKey, JSON.stringify(settings));
       } catch (error) {
         console.error('Failed to save settings:', error);
       }
     }
-  }, [settings, isLoaded]);
+  }, [settings, isLoaded, isSignedIn, user?.id]);
 
   // Update a single setting
   const updateSetting = <K extends SettingsKey>(key: K, value: AppSettings[K]) => {

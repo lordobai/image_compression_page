@@ -76,11 +76,17 @@
   color: #f4f4f5 !important;
   background-color: #18181b !important;
   border-color: #27272a !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  box-sizing: border-box !important;
+  overflow: hidden !important;
 }
 
 /* Specific modal styling */
 .cl-modal {
   background-color: rgba(0, 0, 0, 0.8) !important;
+  overflow: hidden !important;
 }
 
 .cl-modalContent {
@@ -88,6 +94,19 @@
   border: 1px solid #27272a !important;
   border-radius: 12px !important;
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8) !important;
+  overflow: hidden !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+/* Ensure modal content respects padding */
+.cl-modalContent * {
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+  padding-right: 0 !important;
+  margin-right: 0 !important;
 }
 
 .cl-card {
@@ -243,10 +262,47 @@
 /* More targeted approach - only affect Clerk elements */
 [class*="cl-"] {
   color: #f4f4f5 !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
 }
 
 [class*="cl-"] * {
   color: #f4f4f5 !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+/* Force all Clerk elements to respect container - ALL DEVICES */
+[class*="cl-"] input,
+[class*="cl-"] button,
+[class*="cl-"] select,
+[class*="cl-"] textarea,
+[class*="cl-"] div,
+[class*="cl-"] span,
+[class*="cl-"] p,
+[class*="cl-"] label,
+[class*="cl-"] form,
+[class*="cl-"] section {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  box-sizing: border-box !important;
+  overflow: hidden !important;
+}
+
+/* Additional mobile-specific constraints */
+@media (max-width: 768px) {
+  [class*="cl-"] {
+    width: 100% !important;
+    min-width: 0 !important;
+    overflow: hidden !important;
+  }
+
+  [class*="cl-"] * {
+    width: 100% !important;
+    min-width: 0 !important;
+    overflow: hidden !important;
+  }
 }
 
 /* Ensure all Clerk text is visible */
@@ -275,15 +331,150 @@
 
 /* ===== RESPONSIVE DESIGN ===== */
 
+/* Modal container constraints */
+.fixed.inset-0.z-50.flex.items-center.justify-center {
+  overflow: hidden !important;
+}
+
+/* Modal content constraints */
+.w-\[calc\(100vw-2rem\)\].max-w-lg.max-h-\[90vh\].overflow-y-auto {
+  overflow-x: hidden !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+.w-\[calc\(100vw-2rem\)\].max-w-lg.max-h-\[90vh\].overflow-y-auto * {
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+  overflow: hidden !important;
+}
+
+/* Clerk form container constraints */
+.clerk-form-container {
+  width: 100% !important;
+  max-width: 100% !important;
+  overflow: hidden !important;
+  box-sizing: border-box !important;
+  min-width: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+/* Force all Clerk components to respect container bounds */
+.clerk-form-container *,
+.clerk-form-container *::before,
+.clerk-form-container *::after {
+  box-sizing: border-box !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  padding-right: 0 !important;
+  margin-right: 0 !important;
+}
+
+/* Additional aggressive constraints for Clerk form */
+.clerk-form-container > div,
+.clerk-form-container > form,
+.clerk-form-container > section {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  overflow: hidden !important;
+  padding-right: 0 !important;
+  margin-right: 0 !important;
+}
+
+/* Form element constraints - ALL DEVICES */
+.cl-formFieldInput {
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+  min-width: 0 !important;
+  padding-right: 0 !important;
+  margin-right: 0 !important;
+}
+
+.cl-formButtonPrimary,
+.cl-formButtonSecondary {
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+  min-width: 0 !important;
+  padding-right: 0 !important;
+  margin-right: 0 !important;
+}
+
+/* Ensure text doesn't overflow */
+.cl-formFieldLabel,
+.cl-formFieldAction,
+.cl-formFieldErrorText,
+.cl-formFieldSuccessText {
+  word-wrap: break-word !important;
+  overflow-wrap: break-word !important;
+  max-width: 100% !important;
+}
+
+/* Ensure clerk form container is properly sized */
+.clerk-form-container {
+  width: 100% !important;
+  max-width: 100% !important;
+  overflow: hidden !important;
+  min-width: 0 !important;
+}
+
+/* Target all Clerk form elements to prevent overflow */
+.cl-form * {
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+  min-width: 0 !important;
+}
+
+/* Specific targeting for problematic elements */
+.cl-formField,
+.cl-formFieldRow,
+.cl-formFieldInputWrapper,
+.cl-formFieldInputWrapperInner {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  box-sizing: border-box !important;
+  padding-right: 0 !important;
+  margin-right: 0 !important;
+  overflow: hidden !important;
+}
+
+/* Force all text elements to wrap */
+.cl-form span,
+.cl-form div,
+.cl-form p,
+.cl-form label {
+  word-wrap: break-word !important;
+  overflow-wrap: break-word !important;
+  max-width: 100% !important;
+}
+
+/* Ensure buttons and inputs are properly sized */
+.cl-form input,
+.cl-form button,
+.cl-form select,
+.cl-form textarea {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  box-sizing: border-box !important;
+}
+
 /* Mobile optimizations */
 @media (max-width: 768px) {
   .cl-modalContent {
     margin: 16px !important;
     max-width: calc(100vw - 32px) !important;
+    width: calc(100vw - 32px) !important;
   }
   
   .cl-card {
     padding: 16px !important;
+    width: 100% !important;
+    max-width: none !important;
   }
 }
 
@@ -293,11 +484,19 @@
 .cl-formFieldInput {
   color: #f4f4f5 !important;
   background-color: #27272a !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  box-sizing: border-box !important;
 }
 
 .cl-formFieldLabel {
   color: #f4f4f5 !important;
   font-weight: 500 !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  box-sizing: border-box !important;
 }
 
 /* Focus indicators */
@@ -306,4 +505,31 @@
 .cl-formButtonSecondary:focus {
   outline: 2px solid #38bdf8 !important;
   outline-offset: 2px !important;
+}
+
+/* ===== AGGRESSIVE OVERFLOW PREVENTION ===== */
+
+/* Force all elements to stay within bounds - ALL DEVICES */
+* {
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+/* Specifically target any element that might overflow */
+div, span, p, label, input, button, select, textarea, form, section {
+  max-width: 100% !important;
+  min-width: 0 !important;
+  box-sizing: border-box !important;
+  overflow: hidden !important;
+}
+
+/* Additional mobile-specific constraints */
+@media (max-width: 768px) {
+  * {
+    width: 100% !important;
+  }
+
+  div, span, p, label, input, button, select, textarea, form, section {
+    width: 100% !important;
+  }
 } 

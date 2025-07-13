@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Toaster, toast } from 'react-hot-toast';
-import { Camera, Download, Zap, Sparkles, Upload, FileImage, BarChart3, Check, Settings, Sliders } from 'lucide-react';
+import { Camera, Download, Zap, Sparkles, Upload, FileImage, BarChart3, Check, Settings, Sliders, User } from 'lucide-react';
 import { 
   compressImages, 
   smartCompress, 
@@ -12,6 +12,8 @@ import {
 } from './utils/compression';
 import { useSettings } from './contexts/SettingsContext';
 import { AppSettings } from './types';
+import { useUser, SignIn, SignUp } from '@clerk/clerk-react';
+import { UserProfile } from './components/UserProfile';
 
 const App: React.FC = () => {
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
@@ -29,6 +31,9 @@ const App: React.FC = () => {
   
   // Settings
   const { settings, updateSetting } = useSettings();
+  
+  // Auth
+  const { isSignedIn, isLoaded, user } = useUser();
 
   // Apply default settings on mount
   useEffect(() => {
@@ -279,6 +284,22 @@ const App: React.FC = () => {
   const totalCompressedSize = compressedImages.reduce((sum, img) => sum + img.compressedSize, 0);
   const totalSaved = totalOriginalSize - totalCompressedSize;
 
+  // Show loading state while Clerk loads
+  if (!isLoaded) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-950 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 gradient-bg-primary rounded-2xl flex items-center justify-center mx-auto mb-4 animate-pulse">
+            <Camera className="w-8 h-8 text-white" />
+          </div>
+          <p className="text-white text-lg">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-950 relative overflow-hidden">
       {/* Animated background elements */}
@@ -301,38 +322,64 @@ const App: React.FC = () => {
       />
       
       {/* Header */}
-      <motion.header 
-        initial={{ y: -100, opacity: 0 }}
+      <motion.header
+        initial={{ y: -30, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         className="glass-panel sticky top-0 z-50 border-b border-white/[0.08]"
       >
         <div className="container-modern">
-          <div className="flex items-center justify-between h-20">
+          <div className="flex items-center justify-between h-12 sm:h-20 py-0.5 sm:py-0">
             <motion.div 
-              className="flex items-center space-x-4"
+              className="flex items-center space-x-1 sm:space-x-4"
               whileHover={{ scale: 1.05 }}
             >
               <div className="relative">
-                <div className="w-12 h-12 gradient-bg-primary rounded-2xl flex items-center justify-center shadow-2xl">
-                  <Camera className="w-6 h-6 text-white" />
+                <div className="w-7 h-7 sm:w-12 sm:h-12 gradient-bg-primary rounded-2xl flex items-center justify-center shadow-2xl">
+                  <Camera className="w-4 h-4 sm:w-6 sm:h-6 text-white" />
                 </div>
-                <div className="absolute -top-1 -right-1 w-4 h-4 bg-gradient-bg-accent rounded-full animate-pulse"></div>
+                <div className="absolute -top-1 -right-1 w-2.5 h-2.5 sm:w-4 sm:h-4 bg-gradient-bg-accent rounded-full animate-pulse"></div>
               </div>
               <div>
-                <h1 className="text-2xl font-bold gradient-text-primary">ImageCompress</h1>
+                <h1 className="text-sm sm:text-lg lg:text-2xl font-bold gradient-text-primary">ImageCompress</h1>
                 <p className="text-xs text-neutral-400 font-mono">Pro Edition</p>
               </div>
+              
+              {/* Welcome Message */}
+              {user ? (
+                <motion.div
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  className="hidden lg:flex items-center space-x-1 text-xs sm:text-sm text-neutral-300"
+                >
+                  <span>Welcome back,</span>
+                  <span className="font-medium text-white">
+                    {user.firstName || user.username || 'User'}!
+                  </span>
+                </motion.div>
+              ) : (
+                <motion.div
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  className="hidden lg:flex items-center space-x-1 text-xs sm:text-sm text-neutral-400"
+                >
+                  <span>Guest mode</span>
+                  <span className="text-xs">• Settings won't be saved</span>
+                </motion.div>
+              )}
             </motion.div>
             
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-1 sm:space-x-4">
               <motion.button 
                 whileHover={{ scale: 1.1, rotate: 90 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => setShowSettings(true)}
-                className="glass-button p-3 rounded-xl"
+                className="glass-button p-1.5 sm:p-3 rounded-xl"
               >
-                <Settings className="w-5 h-5 text-neutral-300" />
+                <Settings className="w-4 h-4 sm:w-5 sm:h-5 text-neutral-300" />
               </motion.button>
+              
+              {/* User Profile */}
+              <UserProfile />
             </div>
           </div>
         </div>
@@ -370,6 +417,8 @@ const App: React.FC = () => {
                 </motion.p>
               </div>
             </motion.div>
+
+
 
             {/* File Upload */}
             <motion.div
