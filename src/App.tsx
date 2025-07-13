@@ -342,8 +342,8 @@ const App: React.FC = () => {
                 <div className="absolute -top-1 -right-1 w-2.5 h-2.5 sm:w-4 sm:h-4 bg-gradient-bg-accent rounded-full animate-pulse"></div>
               </div>
               <div>
-                <h1 className="text-sm sm:text-lg lg:text-2xl font-bold gradient-text-primary">ImageCompress</h1>
-                <p className="text-xs text-neutral-400 font-mono">Pro Edition</p>
+                <h1 className="text-sm sm:text-lg lg:text-2xl font-bold gradient-text-primary">ShrinkMyPhoto</h1>
+                <p className="text-xs text-neutral-400 font-mono">Free Image Compression</p>
             </div>
               
               {/* Welcome Message */}
@@ -1123,12 +1123,18 @@ const App: React.FC = () => {
                 </div>
             </div>
           </motion.div>
-          </div>
           
-          {/* Sidebar Ad Banner */}
-          <SidebarAdBanner isPremium={false} />
+          {/* Sidebar Ad Banner - Positioned after Key Features */}
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.9, duration: 0.8 }}
+          >
+            <SidebarAdBanner isPremium={false} />
+          </motion.div>
         </div>
-      </main>
+      </div>
+    </main>
 
       {/* Bottom Ad Banner */}
       <BottomAdBanner isPremium={false} />
@@ -1333,8 +1339,42 @@ const App: React.FC = () => {
         )}
       </AnimatePresence>
 
-
+      {/* Footer */}
+      <footer className="bg-neutral-900/50 border-t border-white/[0.1] mt-16">
+        <div className="container-modern py-8 px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+            <div className="md:col-span-2">
+              <h3 className="text-white font-semibold mb-4">ShrinkMyPhoto</h3>
+              <p className="text-neutral-400 text-sm mb-4">
+                Free online image compression tool. Compress JPG, PNG, WebP images without losing quality. 
+                Fast, secure, and easy to use image optimizer.
+              </p>
             </div>
+            <div>
+              <h4 className="text-white font-medium mb-4">Quick Links</h4>
+              <ul className="space-y-2 text-sm">
+                <li><a href="/about.html" className="text-neutral-400 hover:text-white transition-colors">About</a></li>
+                <li><a href="/faq.html" className="text-neutral-400 hover:text-white transition-colors">FAQ</a></li>
+                <li><a href="/how-to-compress-images.html" className="text-neutral-400 hover:text-white transition-colors">How-To Guide</a></li>
+                <li><a href="/contact.html" className="text-neutral-400 hover:text-white transition-colors">Contact</a></li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="text-white font-medium mb-4">Legal</h4>
+              <ul className="space-y-2 text-sm">
+                <li><a href="/privacy-policy.html" className="text-neutral-400 hover:text-white transition-colors">Privacy Policy</a></li>
+                <li><a href="/terms-of-service.html" className="text-neutral-400 hover:text-white transition-colors">Terms of Service</a></li>
+              </ul>
+            </div>
+          </div>
+          <div className="border-t border-white/[0.1] mt-8 pt-6 text-center">
+            <p className="text-neutral-500 text-sm">
+              © 2025 ShrinkMyPhoto. All rights reserved. Free image compression tool.
+            </p>
+          </div>
+        </div>
+      </footer>
+    </div>
   );
 };
 

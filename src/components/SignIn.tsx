@@ -35,8 +35,8 @@ export const SignInPage: React.FC = () => {
                 <div className="absolute -top-1 -right-1 w-5 h-5 bg-gradient-bg-accent rounded-full animate-pulse"></div>
               </div>
               <div>
-                <h1 className="text-3xl font-bold gradient-text-primary">ImageCompress</h1>
-                <p className="text-sm text-neutral-400 font-mono">Pro Edition</p>
+                <h1 className="text-3xl font-bold gradient-text-primary">ShrinkMyPhoto</h1>
+                                  <p className="text-sm text-neutral-400 font-mono">Free Image Compression</p>
               </div>
             </motion.div>
             

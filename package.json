@@ -1,7 +1,7 @@
 {
   "name": "image-compression-app",
   "version": "1.0.0",
-  "description": "Fast, mobile-friendly image compression web app with elegant design",
+  "description": "ShrinkMyPhoto - Free online image compression tool. Compress JPG, PNG, WebP images without losing quality.",
   "private": true,
   "dependencies": {
     "@clerk/clerk-react": "^4.29.0",
