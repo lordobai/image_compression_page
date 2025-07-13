@@ -1,5 +1,5 @@
 import React from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { X, Download, Calendar, FileImage, Trash2 } from 'lucide-react';
 import { CompressionHistoryItem } from '../utils/subscription';
 import { formatFileSize } from '../utils/compression';

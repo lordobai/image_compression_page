@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Crown, Check, X, Zap, Sparkles, Download, History, Shield, Users, Code } from 'lucide-react';
+import { Crown, X, Zap, Sparkles, Download, History, Shield, Users } from 'lucide-react';
 import { useSubscription } from '../contexts/SubscriptionContext';
 
 interface PremiumUpgradeModalProps {

@@ -22,7 +22,6 @@ import { ImageTooltip } from './components/ImageTooltip';
 import { 
   checkMonthlyUsage, 
   incrementUsage, 
-  getUserUsage, 
   addToCompressionHistory, 
   getCompressionHistory,
   clearCompressionHistory,
@@ -52,7 +51,6 @@ const App: React.FC = () => {
   
   // Add useState for preview URLs
   const [previewUrls, setPreviewUrls] = useState<string[]>([]);
-  const [compareMode, setCompareMode] = useState<'side-by-side' | 'slider'>('side-by-side');
 
   // Settings
   const { settings, updateSetting } = useSettings();
@@ -61,7 +59,7 @@ const App: React.FC = () => {
   const { isLoaded, user } = useUser();
   
   // Subscription
-  const { subscriptionStatus, usageLimits, isFeatureAvailable, checkUsageLimit } = useSubscription();
+  const { subscriptionStatus, usageLimits, isFeatureAvailable } = useSubscription();
 
   // Apply default settings on mount
   useEffect(() => {
@@ -120,7 +118,7 @@ const App: React.FC = () => {
       const history = getCompressionHistory();
       setCompressionHistory(history);
     }
-  }, []);
+  }, [isFeatureAvailable]);
 
   // Generate preview URLs when files are selected
   useEffect(() => {
