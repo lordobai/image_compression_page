@@ -34,7 +34,7 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "react-scripts build",
+    "build": "npm run update-sitemap && react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "server": "node server.js",
@@ -43,7 +43,9 @@
     "prod": "NODE_ENV=production npm run build && npm run server",
     "prod:build": "NODE_ENV=production npm run build",
     "prod:start": "NODE_ENV=production npm run server",
-    "vercel-build": "npm run build"
+    "vercel-build": "npm run build",
+    "update-sitemap": "node scripts/update-sitemap.js",
+    "auto-update": "node scripts/auto-update.js"
   },
   "eslintConfig": {
     "extends": [
@@ -68,6 +70,12 @@
     "@types/imagemin-mozjpeg": "^8.0.4",
     "@types/imagemin-webp": "^7.0.3",
     "ajv": "^8.17.1",
-    "concurrently": "^8.2.2"
+    "concurrently": "^8.2.2",
+    "husky": "^8.0.3"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "node scripts/pre-commit.js"
+    }
   }
 }
