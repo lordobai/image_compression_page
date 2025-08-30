@@ -19,6 +19,8 @@ import { useSubscription } from './contexts/SubscriptionContext';
 import { PremiumUpgradeModal } from './components/PremiumUpgradeModal';
 import { CompressionHistoryModal } from './components/CompressionHistoryModal';
 import { ImageTooltip } from './components/ImageTooltip';
+import { ConsentBanner } from './components/ConsentBanner';
+import { AdDebugger } from './components/AdDebugger';
 import { 
   checkMonthlyUsage, 
   incrementUsage, 
@@ -48,6 +50,7 @@ const App: React.FC = () => {
   const [currentUsage, setCurrentUsage] = useState<{ current: number; limit: number; remaining: number } | null>(null);
   const [compressionHistory, setCompressionHistory] = useState<CompressionHistoryItem[]>([]);
   const [showHistory, setShowHistory] = useState(false);
+  const [hasConsent, setHasConsent] = useState<boolean>(true);
   
   // Add useState for preview URLs
   const [previewUrls, setPreviewUrls] = useState<string[]>([]);
@@ -119,6 +122,16 @@ const App: React.FC = () => {
       setCompressionHistory(history);
     }
   }, [isFeatureAvailable]);
+
+  // Check for existing consent
+  useEffect(() => {
+    const consent = localStorage.getItem('adConsent');
+    if (consent === 'granted') {
+      setHasConsent(true);
+    } else if (consent === 'denied') {
+      setHasConsent(false);
+    }
+  }, []);
 
   // Generate preview URLs when files are selected
   useEffect(() => {
@@ -228,8 +241,8 @@ const App: React.FC = () => {
     
     if (imageFiles.length === 0) {
       toast.error('Please select image files');
-      return;
-    }
+          return;
+        }
 
     // Check subscription limits
     const currentLimits = usageLimits[subscriptionStatus.tier];
@@ -242,8 +255,8 @@ const App: React.FC = () => {
       if (subscriptionStatus.tier === 'free') {
         setPremiumModalTrigger('limit-reached');
         setShowPremiumModal(true);
-        return;
-      }
+            return;
+          }
       toast.error(`${oversizedFiles.length} file(s) exceed the ${currentLimits.maxFileSizeMB}MB limit`);
       return;
     }
@@ -571,7 +584,7 @@ const App: React.FC = () => {
                   <h1 className="text-sm sm:text-lg lg:text-2xl font-bold gradient-text-primary">ShrinkMyPhoto</h1>
                   <p className="text-xs text-neutral-400 font-mono">Free Image Compression</p>
                 </a>
-              </div>
+            </div>
               
               {/* Welcome Message */}
               {user ? (
@@ -600,9 +613,9 @@ const App: React.FC = () => {
             <div className="flex items-center space-x-1 sm:space-x-4">
               {/* Subscription Status */}
               {subscriptionStatus.tier === 'free' && (
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
+                    <motion.button
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
                   onClick={() => {
                     setPremiumModalTrigger('manual');
                     setShowPremiumModal(true);
@@ -610,7 +623,7 @@ const App: React.FC = () => {
                   className="glass-button p-1.5 sm:p-3 rounded-xl border border-yellow-500/30"
                 >
                   <Crown className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-400" />
-                </motion.button>
+                    </motion.button>
               )}
               
               <motion.button 
@@ -630,7 +643,7 @@ const App: React.FC = () => {
       </motion.header>
 
       {/* Top Ad Banner */}
-      <TopAdBanner isPremium={subscriptionStatus.tier !== 'free'} />
+              <TopAdBanner isPremium={subscriptionStatus.tier !== 'free'} hasConsent={hasConsent} />
 
       {/* Main Content */}
       <main className="container-modern py-12 px-4 sm:px-6 lg:px-8 relative z-10">
@@ -664,11 +677,11 @@ const App: React.FC = () => {
                 </motion.p>
               </div>
             </motion.div>
-
+              
 
 
             {/* File Upload */}
-            <motion.div
+                <motion.div
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3, duration: 0.8 }}
@@ -776,15 +789,15 @@ const App: React.FC = () => {
                               <span>Upgrade to Pro for higher limits</span>
                             </button>
                           </div>
-                        </motion.div>
-                      )}
+                </motion.div>
+              )}
             </motion.div>
                   </div>
 
                   {/* Selected Files */}
                   <AnimatePresence>
             {selectedFiles.length > 0 && (
-              <motion.div
+            <motion.div
                         initial={{ opacity: 0, height: 0 }}
                         animate={{ opacity: 1, height: 'auto' }}
                         exit={{ opacity: 0, height: 0 }}
@@ -818,14 +831,14 @@ const App: React.FC = () => {
                             </ImageTooltip>
                           ))}
                         </div>
-                      </motion.div>
+            </motion.div>
                     )}
                   </AnimatePresence>
 
                   {/* Compression Mode & Settings */}
                   <AnimatePresence>
-                    {selectedFiles.length > 0 && (
-                      <motion.div
+            {selectedFiles.length > 0 && (
+              <motion.div
                         initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.2 }}
@@ -1317,7 +1330,7 @@ const App: React.FC = () => {
                         <motion.div
                           key={index}
                           initial={{ opacity: 0, x: -20 }}
-                          animate={{ opacity: 1, x: 0 }}
+                animate={{ opacity: 1, x: 0 }}
                           transition={{ delay: index * 0.1 }}
                           className="glass-light rounded-xl p-6"
                         >
@@ -1335,24 +1348,24 @@ const App: React.FC = () => {
                                   />
                                   <div className="absolute -top-2 -left-2 bg-neutral-800/90 backdrop-blur-sm px-2 py-1 rounded-md border border-white/[0.1]">
                                     <span className="text-xs font-medium text-neutral-300">Original</span>
-                                  </div>
+                  </div>
                                 </div>
                                 <div className="mt-3 text-center">
                                   <div className="text-sm font-semibold text-neutral-300">{formatFileSize(image.originalSize)}</div>
                                   <div className="text-xs text-neutral-400">{image.dimensions.original.width}×{image.dimensions.original.height}</div>
-                                </div>
-                              </div>
-
+                  </div>
+                </div>
+                
                               {/* Arrow indicator */}
                               <div className="flex flex-col items-center mb-4 lg:mb-0">
                                 <div className="w-12 h-12 gradient-bg-primary rounded-full flex items-center justify-center">
                                   <span className="text-white text-xl font-bold">→</span>
-                                </div>
+                    </div>
                                 <div className="mt-2 text-center">
                                   <div className="text-xs text-neutral-400">Compressed</div>
                                   <div className="text-xs text-emerald-400 font-medium">{Math.round(((image.originalSize - image.compressedSize) / image.originalSize) * 100)}% smaller</div>
-                                </div>
-                              </div>
+                  </div>
+                    </div>
 
                               {/* Compressed image */}
                               <div className="flex flex-col items-center mb-4 lg:mb-0">
@@ -1365,15 +1378,15 @@ const App: React.FC = () => {
                                   />
                                   <div className="absolute -top-2 -left-2 bg-emerald-600/90 backdrop-blur-sm px-2 py-1 rounded-md border border-emerald-400/30">
                                     <span className="text-xs font-medium text-white">Compressed</span>
-                                  </div>
-                                </div>
+                  </div>
+                    </div>
                                 <div className="mt-3 text-center">
                                   <div className="text-sm font-semibold text-emerald-400">{formatFileSize(image.compressedSize)}</div>
                                   <div className="text-xs text-neutral-400">{image.dimensions.compressed.width}×{image.dimensions.compressed.height}</div>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
+                  </div>
+                    </div>
+                  </div>
+                </div>
 
                           {/* File info and download section */}
                           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
@@ -1389,7 +1402,7 @@ const App: React.FC = () => {
                             </div>
                             
                             {/* Download button */}
-                            <motion.button
+                <motion.button
                               whileHover={{ scale: 1.05 }}
                               whileTap={{ scale: 0.95 }}
                               onClick={() => handleDownload(image)}
@@ -1397,7 +1410,7 @@ const App: React.FC = () => {
                             >
                               <Download className="w-4 h-4" />
                               <span>Download</span>
-                            </motion.button>
+                </motion.button>
                           </div>
                         </motion.div>
                       ))}
@@ -1447,7 +1460,7 @@ const App: React.FC = () => {
                         <div className="flex justify-between items-center">
                           <span className="text-sm text-neutral-300">Space saved</span>
                           <span className="text-sm font-semibold text-blue-400">{formatFileSize(totalSaved)}</span>
-                        </div>
+                    </div>
                   </>
                 )}
               </div>
@@ -1494,32 +1507,32 @@ const App: React.FC = () => {
                 <div className="flex items-center space-x-3">
                   <div className="w-5 h-5 gradient-bg-primary rounded-full flex items-center justify-center">
                     <Check className="w-3 h-3 text-white" />
-                  </div>
+            </div>
                   <span className="text-sm text-neutral-300">Format selection</span>
-                </div>
+          </div>
                 <div className="flex items-center space-x-3">
                   <div className="w-5 h-5 gradient-bg-primary rounded-full flex items-center justify-center">
                     <Check className="w-3 h-3 text-white" />
-                  </div>
+        </div>
                   <span className="text-sm text-neutral-300">Quality control</span>
                 </div>
             </div>
           </motion.div>
-          
+
           {/* Sidebar Ad Banner - Positioned after Key Features */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.9, duration: 0.8 }}
           >
-            <SidebarAdBanner isPremium={subscriptionStatus.tier !== 'free'} />
+            <SidebarAdBanner isPremium={subscriptionStatus.tier !== 'free'} hasConsent={hasConsent} />
           </motion.div>
-        </div>
-      </div>
+                </div>
+                    </div>
     </main>
 
       {/* Bottom Ad Banner */}
-      <BottomAdBanner isPremium={subscriptionStatus.tier !== 'free'} />
+      <BottomAdBanner isPremium={subscriptionStatus.tier !== 'free'} hasConsent={hasConsent} />
 
       {/* Premium Upgrade Modal */}
       <PremiumUpgradeModal
@@ -1558,7 +1571,7 @@ const App: React.FC = () => {
                 <div className="flex items-center space-x-3">
                   <div className="w-10 h-10 gradient-bg-primary rounded-xl flex items-center justify-center">
                     <Settings className="w-5 h-5 text-white" />
-                </div>
+                  </div>
                   <div>
                     <h2 className="text-xl font-bold text-white">Settings</h2>
                     <p className="text-sm text-neutral-400">Customize your experience</p>
@@ -1574,7 +1587,7 @@ const App: React.FC = () => {
                 </motion.button>
                     </div>
 
-              <div className="space-y-6">
+                <div className="space-y-6">
                 {/* Default Compression Mode */}
                 <div>
                   <h3 className="text-lg font-semibold text-white mb-3">Default Settings</h3>
@@ -1591,7 +1604,7 @@ const App: React.FC = () => {
                         <option value="smart">Smart Mode</option>
                         <option value="custom">Custom Mode</option>
                       </select>
-                    </div>
+                </div>
                     
                     <div>
                       <label className="block text-sm font-medium mb-2 text-white">Default Quality Preset</label>
@@ -1606,8 +1619,8 @@ const App: React.FC = () => {
                         <option value="highCompression">High Compression</option>
                         <option value="maximumCompression">Maximum Compression</option>
                       </select>
-                  </div>
-                      </div>
+              </div>
+          </div>
                     </div>
 
                 {/* UI Preferences */}
@@ -1755,7 +1768,7 @@ const App: React.FC = () => {
                 <li><a href="/how-to-compress-images.html" className="text-neutral-400 hover:text-white transition-colors">How-To Guide</a></li>
                 <li><a href="/contact.html" className="text-neutral-400 hover:text-white transition-colors">Contact</a></li>
               </ul>
-            </div>
+          </div>
             <div>
               <h4 className="text-white font-medium mb-4">Legal</h4>
               <ul className="space-y-2 text-sm">
@@ -1771,6 +1784,14 @@ const App: React.FC = () => {
           </div>
         </div>
       </footer>
+
+      {/* Consent Banner */}
+      <ConsentBanner onConsentChange={setHasConsent} />
+
+      {/* Ad Debugger (Development Only) */}
+      {process.env.NODE_ENV === 'development' && (
+        <AdDebugger adSlot="4289906206" adFormat="responsive" />
+      )}
     </div>
   );
 };

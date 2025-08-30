@@ -122,8 +122,8 @@ export const compressImage = async (
       try {
         const originalWidth = img.width;
         const originalHeight = img.height;
-        
-        // Calculate new dimensions
+      
+      // Calculate new dimensions
         const { width, height } = calculateDimensions(
           originalWidth,
           originalHeight,
@@ -210,16 +210,16 @@ export const compressImage = async (
         } else {
           // For JPEG and WebP, use quality settings
           const quality = Math.max(0, Math.min(1, options.quality / 100));
-          canvas.toBlob(
-            (blob) => {
+      canvas.toBlob(
+        (blob) => {
               if (blob) {
                 const originalName = file.name;
                 const baseName = originalName.replace(/\.[^/.]+$/, '');
                 const newFileName = `${baseName}_compressed.${format}`;
                 const compressedFile = new File([blob], newFileName, {
                   type: `image/${format}`,
-                  lastModified: Date.now(),
-                });
+              lastModified: Date.now(),
+            });
                 
                 // Check if compression actually reduced file size
                 if (compressedFile.size >= file.size) {
@@ -259,7 +259,7 @@ export const compressImage = async (
                   }
                 };
                 resolve(result);
-              } else {
+          } else {
                 reject(new Error('Failed to compress image'));
               }
             },

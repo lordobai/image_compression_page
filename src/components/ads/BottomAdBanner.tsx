@@ -4,9 +4,13 @@ import { AdBanner } from '../AdBanner';
 
 interface BottomAdBannerProps {
   isPremium?: boolean;
+  hasConsent?: boolean;
 }
 
-export const BottomAdBanner: React.FC<BottomAdBannerProps> = ({ isPremium = false }) => {
+export const BottomAdBanner: React.FC<BottomAdBannerProps> = ({ 
+  isPremium = false,
+  hasConsent = true 
+}) => {
   if (isPremium) return null;
 
   return (
@@ -20,6 +24,7 @@ export const BottomAdBanner: React.FC<BottomAdBannerProps> = ({ isPremium = fals
         adSlot="4382756610"
         adFormat="responsive"
         className="w-full h-24 glass-light rounded-2xl flex items-center justify-center overflow-hidden relative"
+        hasConsent={hasConsent}
       />
     </motion.div>
   );

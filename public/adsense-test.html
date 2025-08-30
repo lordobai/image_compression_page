@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AdSense Test - ShrinkMyPhoto</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .ad-container {
+            border: 2px dashed #ccc;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+            min-height: 100px;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .warning { background: #fff3cd; color: #856404; }
+    </style>
+    
+    <!-- Google Consent Mode -->
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('consent', 'default', {
+        'ad_storage': 'granted',
+        'analytics_storage': 'granted'
+      });
+      gtag('js', new Date());
+    </script>
+    
+    <!-- Google AdSense -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2361186618122633" crossorigin="anonymous"></script>
+</head>
+<body>
+    <h1>AdSense Test Page</h1>
+    
+    <div class="test-section">
+        <h2>Test Results</h2>
+        <div id="test-results"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Top Banner Ad</h2>
+        <div class="ad-container">
+            <ins class="adsbygoogle"
+                 style="display:block"
+                 data-ad-client="ca-pub-2361186618122633"
+                 data-ad-slot="4289906206"
+                 data-ad-format="auto"
+                 data-full-width-responsive="true"></ins>
+        </div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Sidebar Ad</h2>
+        <div class="ad-container">
+            <ins class="adsbygoogle"
+                 style="display:block"
+                 data-ad-client="ca-pub-2361186618122633"
+                 data-ad-slot="4229362301"
+                 data-ad-format="auto"
+                 data-full-width-responsive="true"></ins>
+        </div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Bottom Banner Ad</h2>
+        <div class="ad-container">
+            <ins class="adsbygoogle"
+                 style="display:block"
+                 data-ad-client="ca-pub-2361186618122633"
+                 data-ad-slot="4382756610"
+                 data-ad-format="auto"
+                 data-full-width-responsive="true"></ins>
+        </div>
+    </div>
+
+    <script>
+        // Test AdSense functionality
+        function testAdSense() {
+            const results = document.getElementById('test-results');
+            let html = '';
+            
+            // Test 1: Check if AdSense script is loaded
+            if (typeof window.adsbygoogle !== 'undefined') {
+                html += '<div class="status success">✅ AdSense script loaded successfully</div>';
+            } else {
+                html += '<div class="status error">❌ AdSense script not loaded</div>';
+            }
+            
+            // Test 2: Check publisher ID
+            const adElements = document.querySelectorAll('.adsbygoogle');
+            let publisherIdCorrect = true;
+            adElements.forEach(ad => {
+                if (ad.getAttribute('data-ad-client') !== 'ca-pub-2361186618122633') {
+                    publisherIdCorrect = false;
+                }
+            });
+            
+            if (publisherIdCorrect) {
+                html += '<div class="status success">✅ Publisher ID correct</div>';
+            } else {
+                html += '<div class="status error">❌ Publisher ID incorrect</div>';
+            }
+            
+            // Test 3: Check ad slots
+            const slots = ['4289906206', '4229362301', '4382756610'];
+            let slotsCorrect = true;
+            adElements.forEach((ad, index) => {
+                if (ad.getAttribute('data-ad-slot') !== slots[index]) {
+                    slotsCorrect = false;
+                }
+            });
+            
+            if (slotsCorrect) {
+                html += '<div class="status success">✅ Ad slots configured correctly</div>';
+            } else {
+                html += '<div class="status error">❌ Ad slots configured incorrectly</div>';
+            }
+            
+            // Test 4: Check for ad blocker
+            const testAd = document.createElement('div');
+            testAd.innerHTML = '&nbsp;';
+            testAd.className = 'adsbox';
+            testAd.style.position = 'absolute';
+            testAd.style.left = '-10000px';
+            document.body.appendChild(testAd);
+            
+            setTimeout(() => {
+                const isBlocked = testAd.offsetHeight === 0;
+                document.body.removeChild(testAd);
+                
+                if (isBlocked) {
+                    html += '<div class="status warning">⚠️ Ad blocker detected</div>';
+                } else {
+                    html += '<div class="status success">✅ No ad blocker detected</div>';
+                }
+                
+                results.innerHTML = html;
+            }, 100);
+        }
+        
+        // Run tests when page loads
+        window.addEventListener('load', () => {
+            setTimeout(testAdSense, 2000); // Wait for ads to load
+        });
+        
+        // Push ads
+        (adsbygoogle = window.adsbygoogle || []).push({});
+    </script>
+</body>
+</html>

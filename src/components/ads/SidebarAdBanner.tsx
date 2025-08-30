@@ -4,9 +4,13 @@ import { AdBanner } from '../AdBanner';
 
 interface SidebarAdBannerProps {
   isPremium?: boolean;
+  hasConsent?: boolean;
 }
 
-export const SidebarAdBanner: React.FC<SidebarAdBannerProps> = ({ isPremium = false }) => {
+export const SidebarAdBanner: React.FC<SidebarAdBannerProps> = ({ 
+  isPremium = false,
+  hasConsent = true 
+}) => {
   if (isPremium) return null;
 
   return (
@@ -20,6 +24,7 @@ export const SidebarAdBanner: React.FC<SidebarAdBannerProps> = ({ isPremium = fa
         adSlot="4229362301"
         adFormat="responsive"
         className="w-full h-[600px] glass-light rounded-2xl flex items-center justify-center overflow-hidden relative sticky top-4"
+        hasConsent={hasConsent}
       />
     </motion.div>
   );

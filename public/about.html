@@ -4,118 +4,286 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>About ShrinkMyPhoto - Free Online Image Compression Tool</title>
-    <meta name="description" content="Learn about ShrinkMyPhoto, the free online image compression tool that helps you reduce image file sizes without losing quality. Fast, secure, and easy to use.">
-    <meta name="keywords" content="about image compression, ShrinkMyPhoto, free image tool, image optimizer">
+    <meta name="description" content="Learn about ShrinkMyPhoto, the free online image compression tool that helps you reduce file sizes while maintaining quality. Discover our mission, features, and commitment to privacy.">
+    <meta name="keywords" content="image compression, online tool, free, about, mission, privacy, features">
+    <meta name="author" content="ShrinkMyPhoto">
+    <meta property="og:title" content="About ShrinkMyPhoto - Free Online Image Compression Tool">
+    <meta property="og:description" content="Learn about ShrinkMyPhoto, the free online image compression tool that helps you reduce file sizes while maintaining quality.">
+    <meta property="og:url" content="https://www.shrinkmyphoto.com/about.html">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="About ShrinkMyPhoto - Free Online Image Compression Tool">
+    <meta name="twitter:description" content="Learn about ShrinkMyPhoto, the free online image compression tool that helps you reduce file sizes while maintaining quality.">
     <link rel="canonical" href="https://www.shrinkmyphoto.com/about.html">
     <style>
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             line-height: 1.6;
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: #333;
         }
-        h1, h2, h3 {
-            color: #2c3e50;
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
         }
         .header {
-            text-align: center;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
             margin-bottom: 40px;
-            padding-bottom: 20px;
-            border-bottom: 2px solid #3498db;
+        }
+        .header h1 {
+            margin: 0;
+            color: #2c3e50;
+            text-align: center;
+            font-size: 2.5em;
+        }
+        .content {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
         }
         .section {
-            margin-bottom: 30px;
+            margin-bottom: 40px;
         }
-        .highlight {
-            background-color: #f8f9fa;
-            padding: 15px;
-            border-left: 4px solid #3498db;
-            margin: 20px 0;
+        .section h2 {
+            color: #2c3e50;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
         }
-        .nav {
+        .section h3 {
+            color: #34495e;
+            margin-top: 30px;
+            margin-bottom: 15px;
+        }
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin: 30px 0;
+        }
+        .feature-card {
             background: #f8f9fa;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 30px;
+            padding: 25px;
+            border-radius: 10px;
+            border-left: 4px solid #3498db;
+            transition: transform 0.3s ease;
         }
-        .nav a {
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+        .feature-card h4 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        .stat-number {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .nav-links {
+            text-align: center;
+            margin: 30px 0;
+        }
+        .nav-links a {
+            display: inline-block;
+            margin: 0 15px;
             color: #3498db;
             text-decoration: none;
-            margin-right: 20px;
+            padding: 10px 20px;
+            border: 2px solid #3498db;
+            border-radius: 25px;
+            transition: all 0.3s ease;
         }
-        .nav a:hover {
-            text-decoration: underline;
+        .nav-links a:hover {
+            background: #3498db;
+            color: white;
+        }
+        .footer {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            text-align: center;
+            border-radius: 10px;
+        }
+        ul {
+            padding-left: 20px;
+        }
+        li {
+            margin-bottom: 10px;
+        }
+        .highlight {
+            background: linear-gradient(120deg, #a8edea 0%, #fed6e3 100%);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
         }
     </style>
 </head>
 <body>
-    <div class="nav">
-        <a href="/">← Back to Image Compression Tool</a>
-        <a href="/privacy-policy.html">Privacy Policy</a>
-    </div>
-
     <div class="header">
-        <h1>About ShrinkMyPhoto</h1>
-        <p><strong>Free Online Image Compression Tool</strong></p>
-    </div>
-
-    <div class="section">
-        <h2>What is ShrinkMyPhoto?</h2>
-        <p>ShrinkMyPhoto is a free online image compression tool designed to help you reduce image file sizes without compromising quality. Whether you're a photographer, web developer, or just someone who needs to optimize images for faster loading, our tool provides a simple and effective solution.</p>
-        
-        <div class="highlight">
-            <strong>Key Features:</strong>
-            <ul>
-                <li>Free to use - no registration required</li>
-                <li>Support for JPG, PNG, and WebP formats</li>
-                <li>Batch processing for multiple images</li>
-                <li>Quality control options</li>
-                <li>Secure - all processing done in your browser</li>
-            </ul>
+        <div class="container">
+            <h1>About ShrinkMyPhoto</h1>
         </div>
     </div>
 
-    <div class="section">
-        <h2>Why Use Image Compression?</h2>
-        <p>Image compression is essential for:</p>
-        <ul>
-            <li><strong>Faster website loading</strong> - Smaller images load quicker</li>
-            <li><strong>Reduced storage space</strong> - Save space on your devices</li>
-            <li><strong>Better user experience</strong> - Faster page loads improve engagement</li>
-            <li><strong>SEO benefits</strong> - Google favors faster-loading websites</li>
-            <li><strong>Email attachments</strong> - Smaller files are easier to send</li>
-        </ul>
-    </div>
+    <div class="container">
+        <div class="content">
+            <div class="section">
+                <h2>Our Mission</h2>
+                <p>At ShrinkMyPhoto, we believe that image optimization should be accessible to everyone. Our mission is to provide a free, powerful, and user-friendly online image compression tool that helps individuals and businesses reduce file sizes without compromising quality.</p>
+                
+                <div class="highlight">
+                    <h3>Why We Created ShrinkMyPhoto</h3>
+                    <p>In today's digital world, images are everywhere - from websites and social media to email attachments and presentations. However, large image files can slow down websites, consume storage space, and make sharing difficult. We created ShrinkMyPhoto to solve these problems with a simple, effective solution.</p>
+                </div>
+            </div>
 
-    <div class="section">
-        <h2>How It Works</h2>
-        <p>Our image compression process is simple and secure:</p>
-        <ol>
-            <li><strong>Upload</strong> - Drag and drop your images or click to browse</li>
-            <li><strong>Choose settings</strong> - Select compression quality and format</li>
-            <li><strong>Process</strong> - Our advanced algorithms compress your images</li>
-            <li><strong>Download</strong> - Get your optimized images instantly</li>
-        </ol>
-        
-        <div class="highlight">
-            <strong>Privacy First:</strong> All image processing happens in your browser. We never upload or store your images on our servers.
+            <div class="section">
+                <h2>What Makes Us Different</h2>
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <h4>🔒 Privacy First</h4>
+                        <p>All image processing happens in your browser. We never upload, store, or access your images on our servers. Your files remain completely private and secure.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>⚡ Lightning Fast</h4>
+                        <p>Our advanced compression algorithms work directly in your browser, providing instant results without waiting for uploads or downloads.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>🎯 Smart Compression</h4>
+                        <p>Intelligent algorithms that automatically choose the best compression settings for each image type while maintaining visual quality.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>📱 Universal Compatibility</h4>
+                        <p>Works on any device with a web browser - desktop, tablet, or mobile. No software installation required.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>💎 High Quality</h4>
+                        <p>Advanced compression techniques that reduce file size while preserving image quality and visual appeal.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>🆓 Completely Free</h4>
+                        <p>No hidden costs, no watermarks, no limitations. Our core compression tool is free for everyone to use.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Our Technology</h2>
+                <h3>Advanced Compression Algorithms</h3>
+                <p>ShrinkMyPhoto uses state-of-the-art compression algorithms specifically designed for different image formats:</p>
+                <ul>
+                    <li><strong>JPEG Optimization:</strong> Intelligent quality adjustment and metadata removal</li>
+                    <li><strong>PNG Compression:</strong> Advanced color palette optimization and transparency preservation</li>
+                    <li><strong>WebP Conversion:</strong> Modern format conversion for maximum compression</li>
+                    <li><strong>Smart Resizing:</strong> Automatic dimension optimization while maintaining aspect ratios</li>
+                </ul>
+
+                <h3>Browser-Based Processing</h3>
+                <p>Our innovative approach processes images directly in your browser using:</p>
+                <ul>
+                    <li>HTML5 Canvas API for image manipulation</li>
+                    <li>Web Workers for background processing</li>
+                    <li>Advanced JavaScript algorithms</li>
+                    <li>Real-time preview and comparison tools</li>
+                </ul>
+            </div>
+
+            <div class="section">
+                <h2>Who Uses ShrinkMyPhoto</h2>
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <h4>👨‍💻 Web Developers</h4>
+                        <p>Optimize images for faster website loading times and better user experience.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>📱 Social Media Managers</h4>
+                        <p>Prepare images for various social platforms with optimal file sizes and dimensions.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>📧 Email Marketers</h4>
+                        <p>Reduce attachment sizes and improve email deliverability rates.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>🎨 Graphic Designers</h4>
+                        <p>Quickly optimize images for different use cases and platforms.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>📸 Photographers</h4>
+                        <p>Create web-ready versions of high-resolution photos without quality loss.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>🏢 Small Businesses</h4>
+                        <p>Optimize product images and marketing materials for online presence.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Our Commitment to Quality</h2>
+                <h3>Continuous Improvement</h3>
+                <p>We're constantly working to improve our compression algorithms and user experience. Our team regularly:</p>
+                <ul>
+                    <li>Updates compression algorithms for better results</li>
+                    <li>Adds support for new image formats</li>
+                    <li>Improves user interface and accessibility</li>
+                    <li>Optimizes performance and loading speeds</li>
+                    <li>Enhances security and privacy features</li>
+                </ul>
+
+                <h3>User Feedback</h3>
+                <p>We value user feedback and use it to guide our development priorities. Every feature and improvement is designed with our users' needs in mind.</p>
+            </div>
+
+            <div class="section">
+                <h2>Privacy & Security</h2>
+                <div class="highlight">
+                    <h3>Your Privacy is Our Priority</h3>
+                    <p>We believe that your images are personal and private. That's why we've designed ShrinkMyPhoto to process all images locally in your browser:</p>
+                    <ul>
+                        <li><strong>No Uploads:</strong> Images never leave your device</li>
+                        <li><strong>No Storage:</strong> We don't store any of your images</li>
+                        <li><strong>No Tracking:</strong> We don't track your image processing</li>
+                        <li><strong>Secure:</strong> All processing happens in your secure browser environment</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Get Started Today</h2>
+                <p>Ready to optimize your images? ShrinkMyPhoto is completely free to use and requires no registration. Simply upload your images and start compressing!</p>
+                
+                <div class="nav-links">
+                    <a href="/">Start Compressing</a>
+                    <a href="/how-to-compress-images.html">Learn How</a>
+                    <a href="/faq.html">FAQ</a>
+                    <a href="/contact.html">Contact Us</a>
+                </div>
+            </div>
         </div>
-    </div>
 
-    <div class="section">
-        <h2>Supported Formats</h2>
-        <ul>
-            <li><strong>JPEG/JPG</strong> - Best for photographs and complex images</li>
-            <li><strong>PNG</strong> - Ideal for images with transparency</li>
-            <li><strong>WebP</strong> - Modern format with excellent compression</li>
-        </ul>
-    </div>
-
-    <div class="section">
-        <h2>Get Started</h2>
-        <p>Ready to optimize your images? <a href="/">Try our free image compression tool now</a> and see the difference in file sizes!</p>
+        <div class="footer">
+            <p>&copy; 2025 ShrinkMyPhoto. All rights reserved. | <a href="/privacy-policy.html">Privacy Policy</a> | <a href="/terms-of-service.html">Terms of Service</a></p>
+        </div>
     </div>
 </body>
 </html> 
