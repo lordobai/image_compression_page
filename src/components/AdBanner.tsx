@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 
 interface AdBannerProps {
   adSlot: string;
@@ -20,35 +20,7 @@ export const AdBanner: React.FC<AdBannerProps> = ({
   const [adError, setAdError] = useState(false);
   const [retryCount, setRetryCount] = useState(0);
 
-  useEffect(() => {
-    // Don't load ads if no consent
-    if (!hasConsent) {
-      console.log(`[AdBanner] Skipping ad load for slot ${adSlot} - no consent`);
-      return;
-    }
-
-    // Check if AdSense is loaded
-    if (typeof window !== 'undefined' && (window as any).adsbygoogle) {
-      loadAd();
-    } else {
-      // Wait for AdSense to load
-      const checkAdSense = setInterval(() => {
-        if ((window as any).adsbygoogle) {
-          clearInterval(checkAdSense);
-          loadAd();
-        }
-      }, 100);
-
-      // Timeout after 10 seconds
-      setTimeout(() => {
-        clearInterval(checkAdSense);
-        console.warn(`[AdBanner] AdSense failed to load for slot ${adSlot}`);
-        setAdError(true);
-      }, 10000);
-    }
-  }, [adSlot, hasConsent]);
-
-  const loadAd = () => {
+  const loadAd = useCallback(() => {
     if (!adRef.current) return;
 
     try {
@@ -103,7 +75,35 @@ export const AdBanner: React.FC<AdBannerProps> = ({
       console.error(`[AdBanner] Error loading ad for slot ${adSlot}:`, error);
       setAdError(true);
     }
-  };
+  }, [adSlot, adFormat, adLoaded]);
+
+  useEffect(() => {
+    // Don't load ads if no consent
+    if (!hasConsent) {
+      console.log(`[AdBanner] Skipping ad load for slot ${adSlot} - no consent`);
+      return;
+    }
+
+    // Check if AdSense is loaded
+    if (typeof window !== 'undefined' && (window as any).adsbygoogle) {
+      loadAd();
+    } else {
+      // Wait for AdSense to load
+      const checkAdSense = setInterval(() => {
+        if ((window as any).adsbygoogle) {
+          clearInterval(checkAdSense);
+          loadAd();
+        }
+      }, 100);
+
+      // Timeout after 10 seconds
+      setTimeout(() => {
+        clearInterval(checkAdSense);
+        console.warn(`[AdBanner] AdSense failed to load for slot ${adSlot}`);
+        setAdError(true);
+      }, 10000);
+    }
+  }, [adSlot, hasConsent, loadAd]);
 
   const retryAd = () => {
     if (retryCount < 3) {
